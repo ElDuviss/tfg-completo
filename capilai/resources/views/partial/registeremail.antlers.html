@@ -1,0 +1,61 @@
+<form method="POST" action="/usuarios" style="color:black; display:block;" onsubmit="return validarFormulario()">
+    {{ csrf_field }}
+
+    <div style="margin-bottom:15px;">
+        <label style="display:block; font-weight:bold;">Email:</label>
+        <input type="email" name="email" required 
+            style="width:100%; padding:8px; background-color:#F3F4F6;">
+
+        {{ if errors:email }}
+            <p style="color:red; margin-top:5px;">
+                Este correo ya está registrado.
+            </p>
+        {{ /if }}
+
+    </div>
+
+    <div style="margin-bottom:15px;">
+        <label style="display:block; font-weight:bold;">Contraseña:</label>
+        <input type="password" id="password" name="password" required 
+               style="width:100%; padding:8px; background-color:#F3F4F6;"
+               oninput="validarPassword()">
+
+        <p id="mensaje-error" style="color:red; margin-top:5px; display:none;">
+            La contraseña debe tener al menos 6 caracteres y contener letras y números.
+        </p>
+    </div>
+
+    <div style="margin-bottom:15px;">
+        <label style="display:block; font-weight:bold;">Nombre de usuario:</label>
+        <input type="text" name="username" required 
+               style="width:100%; padding:8px; background-color:#F3F4F6;">
+    </div>
+
+    <button type="submit" 
+            style="padding:10px 20px; background:black; color:white; border:none; border-radius:6px;">
+        Guardar usuario
+    </button>
+</form>
+
+<script>
+function validarPassword() {
+    const password = document.getElementById('password').value;
+    const mensaje = document.getElementById('mensaje-error');
+
+    const tieneLongitud = password.length >= 6;
+    const tieneLetras = /[a-zA-Z]/.test(password);
+    const tieneNumeros = /[0-9]/.test(password);
+
+    if (tieneLongitud && tieneLetras && tieneNumeros) {
+        mensaje.style.display = "none";
+        return true;
+    } else {
+        mensaje.style.display = "block";
+        return false;
+    }
+}
+
+function validarFormulario() {
+    return validarPassword();
+}
+</script>

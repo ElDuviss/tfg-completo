@@ -1,0 +1,26 @@
+<form method="POST" action="/login" style="color:black; display:block;">
+    {{ csrf_field }}
+
+    <div style="margin-bottom:15px;">
+        <label style="display:block; font-weight:bold;">Email:</label>
+        <input type="email" name="email" required 
+               style="width:100%; padding:8px; background-color:#F3F4F6;">
+    </div>
+
+    <div style="margin-bottom:15px;">
+        <label style="display:block; font-weight:bold;">Contraseña:</label>
+        <input type="password" name="password" required 
+               style="width:100%; padding:8px; background-color:#F3F4F6;">
+    </div>
+
+    {{ if login_error }}
+        <p style="color:red; margin-top:10px;">
+            {{ login_error }}
+        </p>
+    {{ /if }}
+
+    <button type="submit" 
+            style="padding:10px 20px; background:black; color:white; border:none; border-radius:6px;">
+        Iniciar sesión
+    </button>
+</form>

@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="{{ site:short_locale }}">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>{{ title ?? site:name }}</title>
+        {{ vite src="resources/js/site.js|resources/css/site.css" }}
+        <script src="//unpkg.com/alpinejs" defer></script>
+    </head>
+    <body class="font-sans leading-normal" style="background-color: #E8E2D6;">
+        {{ partial:partial/header }}
+        <div class="mx-auto px-2 lg:min-h-screen flex flex-col items-center justify-center">
+            {{ template_content }}
+        </div>
+        {{ partial:partial/footer }}
+    </body>
+</html>

@@ -1,0 +1,137 @@
+<div class="max-w-2xl mx-auto py-10 space-y-8">
+
+    <h1 class="text-3xl font-bold text-center">
+        {{ title }}
+    </h1>
+
+    <div class="prose mx-auto text-lg text-gray-700 text-center">
+        {{ content }}
+    </div>
+
+    <div 
+        x-data="cameraApp()" 
+        x-init="init()" 
+        class="text-center space-y-4 mt-10"
+    >
+
+        <video x-ref="video" autoplay class="mx-auto rounded shadow w-full max-w-sm"></video>
+
+        <canvas x-ref="canvas" class="hidden"></canvas>
+
+        <div class="flex justify-center gap-4 mt-4">
+            <button 
+                @click="takePhoto"
+                class="px-4 py-2 bg-blue-600 text-white rounded"
+            >
+                Tomar foto
+            </button>
+
+            <label class="px-4 py-2 bg-blue-600 text-white rounded cursor-pointer">
+                Subir foto
+                <input 
+                    type="file" 
+                    class="hidden"
+                    accept="image/*"
+                    @change="previewUpload($event)"
+                >
+            </label>
+        </div>
+
+        <div x-show="preview" class="mt-6">
+            <h3 class="font-semibold mb-2">Vista previa:</h3>
+            <img :src="preview" class="mx-auto rounded shadow max-w-sm">
+        </div>
+
+        <form 
+            method="POST" 
+            action="/subir-foto" 
+            enctype="multipart/form-data" 
+            class="mt-4"
+            @submit.prevent="validar()"
+        >
+            {{ csrf_field }}
+
+            <input type="hidden" name="foto_capturada" x-ref="fotoInput">
+            <input type="hidden" name="foto_subida_base64" x-ref="uploadInput">
+            <input type="hidden" name="slug_actual" value="{{ slug }}">
+
+            <div 
+                x-show="error" 
+                class="text-red-600 font-semibold mt-4"
+            >
+                Debes tomar o subir una foto antes de continuar.
+            </div>
+
+            <button 
+                type="submit"
+                class="px-4 py-2 bg-green-600 text-white rounded mt-6"
+            >
+                Guardar foto
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+function cameraApp() {
+    return {
+        preview: null,
+        error: false,
+
+        async init() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                this.$refs.video.srcObject = stream;
+            } catch (error) {
+                alert("No se pudo acceder a la cámara. Permite el acceso en tu dispositivo.");
+            }
+        },
+
+        takePhoto() {
+            const video = this.$refs.video;
+            const canvas = this.$refs.canvas;
+
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0);
+
+            const dataUrl = canvas.toDataURL('image/png');
+
+            this.preview = dataUrl;
+            this.$refs.fotoInput.value = dataUrl;
+            this.error = false;
+        },
+
+        previewUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+
+            reader.onload = e => {
+                this.preview = e.target.result;
+                this.$refs.uploadInput.value = e.target.result;
+                this.error = false;
+            };
+
+            reader.readAsDataURL(file);
+        },
+
+        validar() {
+            const fotoTomada = this.$refs.fotoInput.value;
+            const fotoSubida = this.$refs.uploadInput.value;
+
+            if (!fotoTomada && !fotoSubida) {
+                this.error = true;
+                return;
+            }
+
+            this.error = false;
+            // Enviar formulario manualmente
+            this.$root.querySelector('form').submit();
+        }
+    }
+}
+</script>

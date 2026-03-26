@@ -1,0 +1,83 @@
+<form 
+    method="post" 
+    action="/guardar-cuestionario" 
+    class="max-w-3xl mx-auto space-y-12 text-center mt-4"
+    x-data="{
+        respuestas: {},
+        error: false,
+        validar() {
+            const totalPreguntas = document.querySelectorAll('[data-question]').length;
+
+            const contestadas = Object.keys(this.respuestas).length;
+
+            if (contestadas < totalPreguntas) {
+                this.error = true;
+                return false;
+            }
+
+            this.error = false;
+            return true;
+        }
+    }"
+    @submit.prevent="if (validar()) $el.submit()"
+>
+
+    {{ csrf_field }}
+
+    {{ collection:questions sort="order" }}
+        <section class="space-y-4" data-question>
+
+            <h2 class="text-xl lg:text-2xl font-bold mb-4">
+                {{ title }}
+            </h2>
+
+            {{ replicator }}
+
+                <h3 class="text-base lg:text-lg font-semibold mb-2">
+                    {{ question }}
+                </h3>
+
+                <div 
+                    x-data="{ selected: null }" 
+                    class="flex flex-wrap gap-3 justify-center"
+                >
+                    {{ answers | explode("\n") }}
+                        <button 
+                            type="button"
+                            @click="
+                                selected = '{{ value }}';
+                                respuestas['{{ question | slugify }}'] = '{{ value }}';
+                            "
+                            :class="selected === '{{ value }}' 
+                                ? 'bg-blue-600 text-white' 
+                                : 'bg-gray-200 text-gray-800'"
+                            class="px-4 py-2 rounded transition"
+                        >
+                            {{ value }}
+                        </button>
+
+                        <input 
+                            type="hidden" 
+                            name="{{ question | slugify }}" 
+                            :value="selected"
+                        >
+                    {{ /answers }}
+                </div>
+
+            {{ /replicator }}
+
+        </section>
+    {{ /collection:questions }}
+
+    <div x-show="error" class="text-red-600 font-semibold">
+        Debes completar todas las preguntas antes de continuar.
+    </div>
+
+    <button 
+        type="submit"
+        class="px-6 py-3 bg-green-600 text-white rounded text-lg font-semibold block mx-auto"
+    >
+        Guardar
+    </button>
+
+</form>

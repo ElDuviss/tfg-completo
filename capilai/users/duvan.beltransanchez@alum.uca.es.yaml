@@ -1,0 +1,16 @@
+name: Duvan
+super: true
+id: 7b5c4b10-da13-41d2-8a51-65e901258282
+password_hash: $2y$12$B3hfKid.NKUd0pKVVA9LCuSz5HQnGovFLRKc6oOrFVOsHLhwvL4Hm
+preferences:
+  collections:
+    pages:
+      view: tree
+    articles:
+      view: list
+    features:
+      view: list
+    questions:
+      view: list
+    photos:
+      view: list

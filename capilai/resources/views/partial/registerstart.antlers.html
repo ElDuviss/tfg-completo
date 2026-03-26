@@ -1,0 +1,132 @@
+<div x-data="{ 
+        open: false, 
+        openForm: {{ errors ? 'true' : 'false' }},
+        registro: false, 
+        loginForm: '{{ session:login_error ? 'true' : 'false' }}'
+    }" 
+    class="w-full flex flex-col items-center">
+
+    <!--Botónes-->
+    <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10 w-full max-w-md mx-auto">
+
+        <button @click="registro = true"
+        class="w-full sm:w-1/2 px-6 py-3 bg-white text-black rounded-full border border-gray-300 
+                hover:bg-gray-100 hover:shadow-md transition text-center">
+            Inicicar Sesión
+        </button>
+
+        <button @click="open = true"
+        class="w-full sm:w-1/2 px-6 py-3 bg-white text-black rounded-full border border-gray-300 
+                hover:bg-gray-100 hover:shadow-md transition text-center">
+            Registrarse
+        </button>
+
+    </div>
+
+    <!--Modal para registro-->
+    <div x-show="open"
+        x-transition
+        class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+        @click="open = false"
+    >
+        <div class="bg-white rounded-xl shadow-xl p-8 w-80 text-center" @click.stop>
+
+            <h2 class="text-xl font-semibold mb-6">Registrarse</h2>
+
+            <button 
+                @click="open = false; openForm = true"
+                class="block w-full py-3 mb-3 bg-gray-100 rounded-full hover:bg-gray-200 transition">
+                    Registrarse con correo
+            </button>
+
+            <a href="/auth/google"
+            class="block w-full py-3 bg-gray-100 rounded-full hover:bg-gray-200 transition">
+                Registrarse con Google
+            </a>
+
+            <button @click="open = false"
+                    class="mt-6 text-gray-600 hover:text-gray-800 transition">
+                Cerrar
+            </button>
+
+        </div>
+    </div>
+
+    <!--Modal para el inicio de sesión-->
+    <div x-show="registro"
+        x-transition
+        class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+        @click="registro = false"
+    >
+        <div class="bg-white rounded-xl shadow-xl p-8 w-80 text-center" @click.stop>
+
+            <h2 class="text-xl font-semibold mb-6">Iniciar sesión</h2>
+
+            <button @click="registro = false; loginForm = true"
+                    class="block w-full py-3 mb-3 bg-gray-100 rounded-full hover:bg-gray-200 transition">
+                Iniciar Sesión con correo
+            </button>
+
+            <a href="/auth/google"
+                class="block w-full py-3 bg-gray-100 rounded-full hover:bg-gray-200 transition">
+                    Iniciar Sesión con Google
+            </a>
+
+            <button @click="registro = false"
+                class="mt-6 text-gray-600 hover:text-gray-800 transition">
+                    Cerrar
+            </button>
+
+        </div>
+    </div>
+
+
+    <!--Modal para ver el formulario para registro por correo-->
+    <div 
+        x-show="openForm"
+        x-transition
+        class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+        @click="openForm = false"
+    >
+        <div 
+            class="bg-white rounded-xl shadow-xl p-8 w-[90%] max-w-md text-center"
+            @click.stop
+        >
+
+            <h2 class="text-xl font-semibold mb-6">Crear cuenta</h2>
+
+            {{ partial:partial/registeremail }}
+
+            <button @click="openForm = false"
+                    class="mt-6 text-gray-600 hover:text-gray-800 transition">
+                Cerrar
+            </button>
+
+        </div>
+    </div>
+
+    <!--Modal para el inicio de sesion con el correo-->
+    <div 
+        x-show="loginForm"
+        x-transition
+        class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+        @click="loginForm = false"
+    >
+        <div 
+            class="bg-white rounded-xl shadow-xl p-8 w-[90%] max-w-md text-center"
+            @click.stop
+        >
+
+            <h2 class="text-xl font-semibold mb-6">Iniciar sesión</h2>
+
+            {{ partial:partial/loginemail login_error="{ session:login_error }" }}
+
+            <button @click="loginForm = false"
+                    class="mt-6 text-gray-600 hover:text-gray-800 transition">
+                Cerrar
+            </button>
+
+        </div>
+    </div>
+
+</div>
