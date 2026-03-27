@@ -15,4 +15,4 @@ Route::get('/questionaire', function () { return redirect('/questions/datosbiolo
 Route::get('/photos', function () { return redirect('/photos/foto-frontal'); });
 Route::get('/auth/google', [AuthController::class, 'redirectToGoogle']);
 Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
-Route::post('/guardar-cuestionario', [CuestionarioController::class, 'guardar'])->middleware('auth');
+Route::post('/guardar-cuestionario', [CuestionarioController::class, 'guardar']);

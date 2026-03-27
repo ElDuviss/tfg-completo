@@ -50,6 +50,8 @@ class FotoController extends Controller
             'slug' => $slugActual,
         ]);
 
+        dd($response->json());
+
         if (!$response->json()['valida']) {
             return back()->with('error', $response->json()['mensaje']);
         }
