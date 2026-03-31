@@ -45,7 +45,7 @@ class FotoController extends Controller
         $slugActual = $request->slug_actual;
 
         // 🔥 VALIDACIÓN CON N8N → JAVA
-        $response = Http::post('http://172.19.139.231:5678/webhook/validar-foto', [
+        $response = Http::post('http://n8n:5678/webhook/validar-foto', [
             'imagen' => $imageBase64,
             'slug' => $slugActual,
         ]);
