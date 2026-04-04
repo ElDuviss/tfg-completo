@@ -20,7 +20,6 @@ class FotoController extends Controller
         $filename = null;
         $imageBase64 = null;
 
-        // FOTO CAPTURADA DESDE LA CÁMARA
         if ($request->foto_capturada) {
             $image = str_replace('data:image/png;base64,', '', $request->foto_capturada);
             $image = str_replace(' ', '+', $image);
@@ -31,7 +30,6 @@ class FotoController extends Controller
             Storage::disk('public')->put('fotos/' . $filename, base64_decode($image));
         }
 
-        // FOTO SUBIDA DESDE ARCHIVO
         if ($request->foto_subida_base64) {
             $image = preg_replace('/^data:image\/\w+;base64,/', '', $request->foto_subida_base64);
 
@@ -41,22 +39,20 @@ class FotoController extends Controller
             Storage::disk('public')->put('fotos/' . $filename, base64_decode($image));
         }
 
-        // SLUG ACTUAL (frontal, lateral, etc.)
         $slugActual = $request->slug_actual;
 
-        // 🔥 VALIDACIÓN CON N8N → JAVA
         $response = Http::post('http://n8n:5678/webhook/validar-foto', [
             'imagen' => $imageBase64,
             'slug' => $slugActual,
         ]);
 
-        dd($response->json());
+        dump($response);
+        exit;
 
         if (!$response->json()['valida']) {
             return back()->with('error', $response->json()['mensaje']);
         }
 
-        // ORDEN DE FOTOS
         $orden = [
             'foto-frontal',
             'foto-lateral-izquierda',
