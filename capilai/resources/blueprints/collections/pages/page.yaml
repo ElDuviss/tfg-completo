@@ -1,0 +1,70 @@
+title: Page
+tabs:
+  main:
+    display: Main
+    sections:
+      -
+        fields:
+          -
+            handle: title
+            field:
+              type: text
+              required: true
+              validate:
+                - required
+          -
+            handle: logo
+            field:
+              container: assets
+              max_files: 1
+              type: assets
+              display: Logo
+          -
+            handle: logotext
+            field:
+              type: text
+              display: LogoText
+          -
+            handle: replicator_field
+            field:
+              type: replicator
+              display: 'Replicator Field'
+              sets:
+                new_set_group:
+                  display: 'New Set Group'
+                  sets:
+                    new_set:
+                      display: 'New Set'
+                      fields:
+                        -
+                          handle: title
+                          field:
+                            type: text
+                            display: Title
+                        -
+                          handle: text
+                          field:
+                            type: textarea
+                            display: Text
+                        -
+                          handle: adress
+                          field:
+                            type: text
+                            display: adress
+          -
+            handle: template
+            field:
+              type: template
+              display: Template
+              localizable: true
+  sidebar:
+    display: Sidebar
+    sections:
+      -
+        fields:
+          -
+            handle: slug
+            field:
+              type: slug
+              localizable: true
+              validate: 'max:200'

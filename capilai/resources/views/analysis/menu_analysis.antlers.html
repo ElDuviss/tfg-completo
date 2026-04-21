@@ -1,0 +1,70 @@
+<div 
+    class="max-w-xl mx-auto py-10 space-y-8"
+    x-data="{
+        async enviarDatos(slug) {
+
+            const userId = {{ session:usuario_id }};
+
+            const cuestionario = await fetch(`/cuestionario/${userId}`)
+                .then(r => r.json());
+
+            const fotos = await fetch(`/fotos-validadas/${userId}`)
+                .then(r => r.json());
+
+            const payload = {
+                user_id: userId,
+                slug: slug,
+                cuestionario: cuestionario,
+                fotos: fotos
+            };
+
+            fetch('/analysis/store-json', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token }}'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            window.location.href = `/analysis/${slug}`;
+
+        }
+    }"
+>
+
+    <h1 class="text-3xl font-bold text-center">Resultados del análisis</h1>
+
+    <p class="text-center text-gray-700 px-4">
+        Ya hemos obtenido todos los datos necesarios para analizar tu cabello. 
+        Pulsa cualquiera de los botones para ver los resultados detallados de cada apartado.
+    </p>
+
+    <div class="grid grid-cols-1 gap-4">
+
+        {{ collection:analysis sort="order" }}
+
+            <button
+                @click="enviarDatos('{{ slug }}')"
+                class="block text-center px-4 py-3 rounded font-semibold bg-blue-600 text-white hover:bg-blue-700 w-full"
+            >
+                {{ parttitle }}
+            </button>
+
+        {{ /collection:analysis }}
+
+        <p class="text-center text-gray-700 px-4">
+            Si has sufrido cambios recientes en tu cabello y ya no está igual que antes, 
+            puedes volver a realizar el cuestionario para obtener un análisis actualizado y más preciso.
+        </p>
+
+        <a 
+            href="/questionaire"
+            class="block text-center px-4 py-3 rounded font-semibold bg-blue-600 text-white hover:bg-blue-700"
+        >
+            Rehacer cuestionario
+        </a>
+
+    </div>
+
+</div>

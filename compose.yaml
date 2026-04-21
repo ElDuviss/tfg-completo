@@ -1,0 +1,85 @@
+version: '3.9'
+
+services:
+
+  app:
+    build:
+      context: ./capilai
+      dockerfile: ../docker/php/Dockerfile
+    container_name: capilai-app
+    user: "1000:1000"
+    volumes:
+      - ./capilai:/var/www/html
+    depends_on:
+      - mysql
+    networks:
+      - capilai
+
+  nginx:
+    image: nginx:latest
+    container_name: capilai-nginx
+    ports:
+      - "8080:80"
+    volumes:
+      - ./capilai:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app
+    networks:
+      - capilai
+
+  mysql:
+    image: mysql:8.4
+    container_name: capilai-mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: capilai
+      MYSQL_USER: capilai
+      MYSQL_PASSWORD: capilai
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - capilai
+
+  n8n:
+    image: n8nio/n8n
+    container_name: capilai-n8n
+    ports:
+      - "5678:5678"
+    volumes:
+      - ./n8n:/home/node/.n8n
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=false
+    networks:
+      - capilai
+
+  ia-java:
+    build:
+      context: ./ia-java
+      dockerfile: Dockerfile
+    container_name: capilai-ia-java
+    ports:
+      - "8081:8080"
+    networks:
+      - capilai
+
+  vite:
+    image: node:18
+    container_name: capilai-vite
+    working_dir: /var/www/html
+    command: ["npm", "run", "dev"]
+    volumes:
+      - ./capilai:/var/www/html
+    ports:
+      - "5173:5173"
+    networks:
+      - capilai
+
+networks:
+  capilai:
+    driver: bridge
+
+volumes:
+  mysql_data:

@@ -1,0 +1,41 @@
+<div class="w-full flex flex-col items-center text-center gap-6 max-w-6xl mx-auto">
+
+    {{ logo }}
+        <img src="{{ url }}" alt="{{ alt ?? 'Logo' }}" class="mx-auto">
+    {{ /logo }}
+
+    <p class="text-[40px] md:text-[52px] font-bold mb-10 text-gray-800 leading-tight">{{ logotext }}</p>
+
+    {{ partial:partial/registerstart }}
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 w-full mt-8">
+
+        {{ replicator_field }}
+            <div class="bg-white shadow-lg rounded-xl p-6 flex flex-col text-center border border-gray-100 h-full 
+            md:max-w-[360px] lg:max-w-[450px] w-full mx-auto">
+
+                {{ if title }}
+                    <h2 class="text-xl font-semibold mb-3 text-gray-800">
+                        {{ title }}
+                    </h2>
+                {{ /if }}
+
+                {{ if text }}
+                    <div class="text-gray-700 leading-relaxed mb-4 flex flex-col gap-1">
+                        {{ text | explode:"\n" }}
+                            <span class="block">{{ value }}</span>
+                        {{ /text }}
+                    </div>
+                {{ /if }}
+
+                <a href="/features/{{ adress }}" class="text-gray-800 font-medium hover:underline">
+                    Más información
+                </a>
+
+            </div>
+
+        {{ /replicator_field }}
+
+    </div>
+
+</div>

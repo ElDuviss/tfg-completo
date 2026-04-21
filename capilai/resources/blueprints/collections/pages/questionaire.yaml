@@ -1,0 +1,89 @@
+title: questionaire_blueprint
+tabs:
+  main:
+    display: Main
+    sections:
+      -
+        fields:
+          -
+            handle: title
+            field:
+              type: text
+              required: true
+              validate:
+                - required
+          -
+            handle: sections
+            field:
+              type: replicator
+              display: Sections
+              sets:
+                new_set_group:
+                  display: 'New Set Group'
+                  sets:
+                    new_set:
+                      display: 'New Set'
+                      fields:
+                        -
+                          handle: sectiontitle
+                          field:
+                            buttons:
+                              - h2
+                              - h3
+                              - bold
+                              - italic
+                              - unorderedlist
+                              - orderedlist
+                              - removeformat
+                              - quote
+                              - anchor
+                              - image
+                              - table
+                              - h1
+                              - h4
+                              - h5
+                              - h6
+                            container: assets
+                            remove_empty_nodes: false
+                            type: bard
+                            display: Sectiontitle
+                        -
+                          handle: question
+                          field:
+                            type: replicator
+                            display: Question
+                            sets:
+                              new_set_group:
+                                display: 'New Set Group'
+                                sets:
+                                  new_set:
+                                    display: 'New Set'
+                                    fields:
+                                      -
+                                        handle: title
+                                        field:
+                                          container: assets
+                                          remove_empty_nodes: false
+                                          type: bard
+                                          display: title
+                                      -
+                                        handle: answers
+                                        field:
+                                          type: textarea
+                                          display: answers
+          -
+            handle: template
+            field:
+              type: template
+              display: Template
+  sidebar:
+    display: Sidebar
+    sections:
+      -
+        fields:
+          -
+            handle: slug
+            field:
+              type: slug
+              localizable: true
+              validate: 'max:200'

@@ -1,0 +1,55 @@
+<div 
+    class="max-w-xl mx-auto py-10 space-y-8"
+    x-data="{
+        todasCompletas: false,
+        check() {
+            const items = document.querySelectorAll('[data-foto]');
+            this.todasCompletas = [...items].every(i => i.dataset.valida === 'true');
+        }
+    }"
+    x-init="check()"
+>
+
+    <h1 class="text-3xl font-bold text-center">Sube tus fotos</h1>
+
+    <div class="grid grid-cols-1 gap-4">
+
+        {{ collection:photos sort="order" }}
+
+            <a 
+                href="{{ url }}"
+                data-foto
+                data-valida="{{ valida ? 'true' : 'false' }}"
+                @click="setTimeout(() => check(), 300)"
+                class="
+                    block text-center px-4 py-3 rounded font-semibold
+                    {{ if valida }}
+                        bg-green-600 text-white pointer-events-none opacity-70
+                    {{ else }}
+                        bg-blue-600 text-white hover:bg-blue-700
+                    {{ /if }}
+                "
+            >
+                {{ title }}
+            </a>
+
+        {{ /collection:photos }}
+
+    </div>
+
+    <div class="text-center mt-8">
+
+        <button
+            class="px-6 py-3 rounded font-bold text-white transition"
+            :class="todasCompletas 
+                ? 'bg-green-600 hover:bg-green-700 cursor-pointer' 
+                : 'bg-blue-600 opacity-50 cursor-not-allowed'"
+            :disabled="!todasCompletas"
+            @click="if(todasCompletas) window.location.href='/analysis/menu_analysis'"
+        >
+            Continuar
+        </button>
+
+    </div>
+
+</div>

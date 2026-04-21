@@ -1,0 +1,15 @@
+title: analysis
+icon: collections
+template: default
+layout: layout
+revisions: false
+route: 'analysis/{slug}'
+sort_dir: asc
+date_behavior:
+  past: null
+  future: null
+preview_targets:
+  -
+    label: Entry
+    url: '{permalink}'
+    refresh: true
