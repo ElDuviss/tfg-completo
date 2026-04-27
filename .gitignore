@@ -1,13 +1,13 @@
 # Ignorar base de datos de n8n
 n8n/database.sqlite
-n8n/database.sqlite-journal
-capilai/n8n_data/
-n8n_data/
+n8n/database.sqlite-shm
+n8n/database.sqlite-wal
+n8n/
 
 # Ignorar modelos pesados de la IA
 ia-java/src/main/resources/models/
 
-# Ignorar archivos de SQLite genéricos
+# Ignorar archivos SQLite genéricos
 database.sqlite
 
 # Ignorar archivos de entorno
@@ -21,11 +21,12 @@ database.sqlite
 # Ignorar node_modules
 /node_modules
 
-# Ignorar logs
+# Ignorar logs y cachés de Laravel
 *.log
 /storage/logs
 /storage/framework/cache
 /storage/framework/sessions
 /storage/framework/views
 
-# Ignorar archivos
+# Ignorar compilación de Java
+**/target/
