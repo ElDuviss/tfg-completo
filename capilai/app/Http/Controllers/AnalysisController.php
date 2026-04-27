@@ -20,30 +20,11 @@ class AnalysisController extends Controller
         $userId = $request->user_id;
         $slug   = $request->slug;
 
-        /*
-        |--------------------------------------------------------------------------
-        | 1) Cargar cuestionario REAL del usuario
-        |--------------------------------------------------------------------------
-        */
-        $cuestionario = Cuestionario::where('user_id', $userId)->firstOrFail();
-        $contenidoArchivo = Storage::get($cuestionario->archivo_json);
-        $datosCuestionario = json_decode($contenidoArchivo, true);
-
-        /*
-        |--------------------------------------------------------------------------
-        | 2) Enviar datos iniciales
-        |--------------------------------------------------------------------------
-        */
         Http::post('http://capilai-n8n:5678/webhook/enviar-datos', [
             'user_id' => $userId,
             'slug'    => $slug,
         ]);
 
-        /*
-        |--------------------------------------------------------------------------
-        | 3) Enviar fotos validadas del usuario
-        |--------------------------------------------------------------------------
-        */
         $fotos = Foto::where('user_id', $userId)->get();
 
         foreach ($fotos as $index => $foto) {
@@ -53,14 +34,11 @@ class AnalysisController extends Controller
             ]);
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | 4) Enviar cuestionario completo
-        |--------------------------------------------------------------------------
-        
-        Http::post('http://capilai-n8n:5678/webhook/enviar-cuestionario', [
-            'cuestionario' => $datosCuestionario,
-        ]);*/
+        $cuestionario = Cuestionario::where('user_id', $userId)->firstOrFail();
+        $contenidoArchivo = Storage::get($cuestionario->archivo_json);
+        $datosCuestionario = json_decode($contenidoArchivo, true);
+
+        Http::post('http://capilai-n8n:5678/webhook/enviar-cuestionario',$datosCuestionario);
 
         return response()->json([
             'status'  => 'ok',
