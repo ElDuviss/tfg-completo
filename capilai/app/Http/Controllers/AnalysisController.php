@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Cuestionario;
+use App\Models\Foto;
 
 class AnalysisController extends Controller
 {
@@ -11,26 +14,57 @@ class AnalysisController extends Controller
     {
         $request->validate([
             'user_id' => 'required|integer',
-            'slug' => 'required|string',
-            'cuestionario' => 'required',
-            'fotos' => 'required|array|min:4',
+            'slug'    => 'required|string',
         ]);
 
-        $json = [
-            'user_id' => $request->user_id,
-            'slug' => $request->slug,
-            'cuestionario' => $request->cuestionario,
-            'fotos' => $request->fotos,
-        ];
+        $userId = $request->user_id;
+        $slug   = $request->slug;
 
-        if (!Storage::disk('local')->exists('analysis')) {
-            Storage::disk('local')->makeDirectory('analysis');
+        /*
+        |--------------------------------------------------------------------------
+        | 1) Cargar cuestionario REAL del usuario
+        |--------------------------------------------------------------------------
+        */
+        $cuestionario = Cuestionario::where('user_id', $userId)->firstOrFail();
+        $contenidoArchivo = Storage::get($cuestionario->archivo_json);
+        $datosCuestionario = json_decode($contenidoArchivo, true);
+
+        /*
+        |--------------------------------------------------------------------------
+        | 2) Enviar datos iniciales
+        |--------------------------------------------------------------------------
+        */
+        Http::post('http://capilai-n8n:5678/webhook/enviar-datos', [
+            'user_id' => $userId,
+            'slug'    => $slug,
+        ]);
+
+        /*
+        |--------------------------------------------------------------------------
+        | 3) Enviar fotos validadas del usuario
+        |--------------------------------------------------------------------------
+        */
+        $fotos = Foto::where('user_id', $userId)->get();
+
+        foreach ($fotos as $index => $foto) {
+            Http::post('http://capilai-n8n:5678/webhook/enviar-fotos', [
+                'slug_foto' => $foto->slug,
+                'base64'    => $foto->base64,
+            ]);
         }
 
-        $filename = 'analysis/' . time() . '.json';
-        Storage::disk('local')->put($filename, json_encode($json, JSON_PRETTY_PRINT));
+        /*
+        |--------------------------------------------------------------------------
+        | 4) Enviar cuestionario completo
+        |--------------------------------------------------------------------------
+        
+        Http::post('http://capilai-n8n:5678/webhook/enviar-cuestionario', [
+            'cuestionario' => $datosCuestionario,
+        ]);*/
 
-        return response()->json(['success' => true, 'file' => $filename]);
+        return response()->json([
+            'status'  => 'ok',
+            'message' => 'Datos, fotos y cuestionario enviados correctamente',
+        ]);
     }
-
 }

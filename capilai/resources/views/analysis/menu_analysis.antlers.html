@@ -1,37 +1,23 @@
-<div 
-    class="max-w-xl mx-auto py-10 space-y-8"
-    x-data="{
-        async enviarDatos(slug) {
+<script>
+async function enviarDatos(slug, userId) {
+    await fetch('/analysis/store-json', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({
+            user_id: userId,
+            slug: slug
+        })
+    });
 
-            const userId = {{ session:usuario_id }};
+    window.location.href = `/analysis/${slug}`;
+}
+</script>
 
-            const cuestionario = await fetch(`/cuestionario/${userId}`)
-                .then(r => r.json());
 
-            const fotos = await fetch(`/fotos-validadas/${userId}`)
-                .then(r => r.json());
-
-            const payload = {
-                user_id: userId,
-                slug: slug,
-                cuestionario: cuestionario,
-                fotos: fotos
-            };
-
-            fetch('/analysis/store-json', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token }}'
-                },
-                body: JSON.stringify(payload)
-            });
-
-            window.location.href = `/analysis/${slug}`;
-
-        }
-    }"
->
+<div class="max-w-xl mx-auto py-10 space-y-8">
 
     <h1 class="text-3xl font-bold text-center">Resultados del análisis</h1>
 
@@ -45,7 +31,7 @@
         {{ collection:analysis sort="order" }}
 
             <button
-                @click="enviarDatos('{{ slug }}')"
+                onclick="enviarDatos('{{ slug }}', {{ session:usuario_id }})"
                 class="block text-center px-4 py-3 rounded font-semibold bg-blue-600 text-white hover:bg-blue-700 w-full"
             >
                 {{ parttitle }}
