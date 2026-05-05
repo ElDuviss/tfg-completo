@@ -3,11 +3,10 @@ package com.example.ia_java;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.util.Base64;
-
 import javax.imageio.ImageIO;
-
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.imgcodecs.Imgcodecs;
 
 public class ImageUtils {
 
@@ -62,13 +61,41 @@ public class ImageUtils {
         for (int i = 0; i < data.length; i++) {
             int argb = data[i];
 
-            // BGR (correcto para OpenCV)
-            bytes[i * 3]     = (byte) (argb & 0xFF);         // B
-            bytes[i * 3 + 1] = (byte) ((argb >> 8) & 0xFF);  // G
-            bytes[i * 3 + 2] = (byte) ((argb >> 16) & 0xFF); // R
+            bytes[i * 3]     = (byte) (argb & 0xFF);
+            bytes[i * 3 + 1] = (byte) ((argb >> 8) & 0xFF);
+            bytes[i * 3 + 2] = (byte) ((argb >> 16) & 0xFF);
         }
 
         mat.put(0, 0, bytes);
         return mat;
+    }
+
+    public static Mat base64ToMatDirect(String base64) throws Exception {
+
+        if (base64 == null || base64.isEmpty()) {
+            throw new Exception("La imagen base64 está vacía o es null");
+        }
+
+        if (base64.contains(",")) {
+            base64 = base64.substring(base64.indexOf(",") + 1);
+        }
+
+        byte[] bytes;
+        try {
+            bytes = Base64.getDecoder().decode(base64);
+        } catch (IllegalArgumentException e) {
+            throw new Exception("Base64 inválido", e);
+        }
+
+        Mat buf = new Mat(1, bytes.length, CvType.CV_8U);
+        buf.put(0, 0, bytes);
+
+        Mat img = Imgcodecs.imdecode(buf, Imgcodecs.IMREAD_COLOR);
+
+        if (img.empty()) {
+            throw new Exception("OpenCV no pudo decodificar la imagen");
+        }
+
+        return img;
     }
 }
