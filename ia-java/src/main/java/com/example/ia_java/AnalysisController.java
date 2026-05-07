@@ -89,7 +89,6 @@ public class AnalysisController {
     private Map<String, Object> generarFeaturesGlobales(Map<String, Map<String, Object>> f) {
         Map<String, Object> r = new HashMap<>();
 
-        // Validación de slugs
         if (!f.containsKey("foto-frontal") ||
             !f.containsKey("foto-lateral-derecha") ||
             !f.containsKey("foto-lateral-izquierda") ||

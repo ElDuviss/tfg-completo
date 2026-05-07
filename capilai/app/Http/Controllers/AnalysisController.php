@@ -20,19 +20,19 @@ class AnalysisController extends Controller
         $userId = $request->user_id;
         $slug   = $request->slug;
 
-        Http::post('http://capilai-n8n:5678/webhook/enviar-datos', [
-            'user_id' => $userId,
-            'slug'    => $slug,
-        ]);
-
         $fotos = Foto::where('user_id', $userId)->get();
 
         foreach ($fotos as $index => $foto) {
-            Http::post('http://capilai-n8n:5678/webhook/enviar-fotos', [
+            $response = Http::post('http://capilai-n8n:5678/webhook/enviar-fotos', [
                 'slug_foto' => $foto->slug,
                 'base64'    => $foto->base64,
             ]);
         }
+
+        Http::post('http://capilai-n8n:5678/webhook/enviar-datos', [
+            'user_id' => $userId,
+            'slug'    => $slug,
+        ]);
 
         $cuestionario = Cuestionario::where('user_id', $userId)->firstOrFail();
         $contenidoArchivo = Storage::get($cuestionario->archivo_json);
