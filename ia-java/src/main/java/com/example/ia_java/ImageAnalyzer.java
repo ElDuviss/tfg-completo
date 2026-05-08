@@ -84,6 +84,41 @@ public class ImageAnalyzer {
         if (r > 180 && g > 160) return "rubio";
         if (r > 160 && g < 120) return "pelirrojo";
 
+        Mat color = new Mat(1, 1, CvType.CV_8UC3, new Scalar(b, g, r));
+        Mat colorHSV = new Mat();
+        Imgproc.cvtColor(color, colorHSV, Imgproc.COLOR_BGR2HSV);
+
+        double H = colorHSV.get(0, 0)[0];
+        double S = colorHSV.get(0, 0)[1];
+        double V = colorHSV.get(0, 0)[2];
+
+        if (V < 40) return "negro";
+        if (S < 30 && V > 180) return "blanco";
+        if (S < 30 && V > 120) return "gris";
+
+        if (H < 20 && V < 90) return "castaño oscuro";
+        if (H < 25 && V < 130) return "castaño medio";
+        if (H < 30 && V < 160) return "castaño claro";
+
+        if (H < 22 && S > 80 && V > 120) return "castaño chocolate";
+        if (H < 28 && S > 60 && V > 150) return "castaño miel";
+
+        if (H >= 20 && H < 35 && V > 160 && S < 80) return "rubio ceniza";
+        if (H >= 20 && H < 35 && V > 160 && S >= 80) return "rubio dorado";
+        if (H >= 20 && H < 35 && V > 130) return "rubio";
+        if (H >= 20 && H < 35 && V <= 130) return "rubio oscuro";
+
+        if (H < 15 && S > 150) return "rojo intenso";
+        if (H < 20 && S > 120) return "pelirrojo";
+        if (H < 20 && S > 80) return "cobrizo";
+
+        if (H >= 35 && H < 85) return "verde esmeralda";
+        if (H >= 85 && H < 110) return "azul marino";
+        if (H >= 110 && H < 130) return "azul pastel";
+        if (H >= 130 && H < 150) return "morado";
+        if (H >= 150 && H < 165) return "rosa fucsia";
+        if (H >= 165 && H < 175) return "rosa pastel";
+
         return "indeterminado";
     }
 

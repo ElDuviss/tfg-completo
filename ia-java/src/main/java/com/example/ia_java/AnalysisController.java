@@ -9,6 +9,7 @@ public class AnalysisController {
 
     public static class AnalisisTemporal {
         public Map<String, Object> datosIniciales = new HashMap<>();
+        public Map<String, Object> datosImagenes = new HashMap<>();
         public Map<String, Object> cuestionario = new HashMap<>();
     }
 
@@ -40,21 +41,12 @@ public class AnalysisController {
         featuresPorFoto.put(slugFoto, features);
 
         if (featuresPorFoto.size() < 4) {
-            System.out.println("===== FOTO RECIBIDA =====");
-            System.out.println("Slug: " + slugFoto);
-            System.out.println("Features: " + features);
-            System.out.println("Faltan fotos: " + (4 - featuresPorFoto.size()));
-            System.out.println("=========================");
             return Map.of(
                 "status", "ok",
                 "msg", "Foto analizada y guardada",
                 "faltan_fotos", 4 - featuresPorFoto.size()
             );
         }
-
-        System.out.println("===== FEATURES POR FOTO RECIBIDAS =====");
-        System.out.println(featuresPorFoto.keySet());
-        System.out.println("========================================");
 
         Map<String, Object> featuresGlobales = generarFeaturesGlobales(featuresPorFoto);
 
@@ -68,6 +60,18 @@ public class AnalysisController {
         );
     }
 
+    @PostMapping("/recibirdatosimagenes")
+    public Map<String, Object> recibirDatosImagenes(@RequestBody Map<String, Object> datos) {
+
+        sesion.datosImagenes = (Map<String, Object>) datos.get("datos");
+
+        return Map.of(
+            "status", "ok",
+            "msg", "Datos de imágenes almacenados correctamente"
+        );
+    }
+
+
     @PostMapping("/recibircuestionario")
     public Map<String, Object> recibirCuestionario(@RequestBody Map<String, Object> datos) {
 
@@ -75,6 +79,7 @@ public class AnalysisController {
 
         System.out.println("===== ANALISIS COMPLETO =====");
         System.out.println("DATOS INICIALES: " + sesion.datosIniciales);
+        System.out.println("DATOS INICIALES: " + sesion.datosImagenes);
         System.out.println("CUESTIONARIO: " + sesion.cuestionario);
         System.out.println("================================");
 

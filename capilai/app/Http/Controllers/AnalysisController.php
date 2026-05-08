@@ -22,16 +22,24 @@ class AnalysisController extends Controller
 
         $fotos = Foto::where('user_id', $userId)->get();
 
+        $DatosImagenes = null;
+
         foreach ($fotos as $index => $foto) {
-            $response = Http::post('http://capilai-n8n:5678/webhook/enviar-fotos', [
+            $DatosImagenes = Http::post('http://capilai-n8n:5678/webhook/enviar-fotos', [
                 'slug_foto' => $foto->slug,
                 'base64'    => $foto->base64,
             ]);
         }
 
+        $features = $DatosImagenes->json();
+
         Http::post('http://capilai-n8n:5678/webhook/enviar-datos', [
             'user_id' => $userId,
             'slug'    => $slug,
+        ]);
+
+        Http::post('http://capilai-n8n:5678/webhook/datos-imagenes', [
+            'features_globales' => $features
         ]);
 
         $cuestionario = Cuestionario::where('user_id', $userId)->firstOrFail();
