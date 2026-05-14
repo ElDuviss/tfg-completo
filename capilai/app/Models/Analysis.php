@@ -11,14 +11,14 @@ class Analysis extends Model
     protected $fillable = [
         'user_id',
         'type',
-        'answers',
+        'cuestionario_json',
+        'fotos_json',
         'ai_response',
-        'extra_data',
     ];
 
     protected $casts = [
-        'answers' => 'array',
-        'extra_data' => 'array',
+        'cuestionario_json' => 'array',
+        'fotos_json'        => 'array',
     ];
 
     public function user()

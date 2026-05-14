@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 public class AnalysisController {
 
     public static class AnalisisTemporal {
-        public Map<String, Object> datosIniciales = new HashMap<>();
+        public String slugAnalisis;
         public Map<String, Object> datosImagenes = new HashMap<>();
         public Map<String, Object> cuestionario = new HashMap<>();
     }
@@ -20,10 +20,10 @@ public class AnalysisController {
     public Map<String, Object> recibirDatos(@RequestBody Map<String, Object> datos) {
 
         sesion = new AnalisisTemporal();
-        sesion.datosIniciales = datos;
+        sesion.slugAnalisis = datos.get("slug").toString();
 
         System.out.println("===== DATOS INICIALES =====");
-        System.out.println(datos);
+        System.out.println("SLUG ANALISIS: " + sesion.slugAnalisis);
         System.out.println("===========================");
 
         return Map.of("status", "ok", "msg", "Datos iniciales guardados");
@@ -71,24 +71,40 @@ public class AnalysisController {
         );
     }
 
-
     @PostMapping("/recibircuestionario")
     public Map<String, Object> recibirCuestionario(@RequestBody Map<String, Object> datos) {
 
         sesion.cuestionario = (Map<String, Object>) datos.get("cuestionario");
 
         System.out.println("===== ANALISIS COMPLETO =====");
-        System.out.println("DATOS INICIALES: " + sesion.datosIniciales);
-        System.out.println("DATOS INICIALES: " + sesion.datosImagenes);
+        System.out.println("SLUG ANALISIS: " + sesion.slugAnalisis);
+        System.out.println("DATOS IMAGENES: " + sesion.datosImagenes);
         System.out.println("CUESTIONARIO: " + sesion.cuestionario);
         System.out.println("================================");
 
-        return Map.of(
-            "status", "ok",
-            "msg", "Cuestionario guardado",
-            "datos_iniciales", sesion.datosIniciales,
-            "cuestionario", sesion.cuestionario
-        );
+        try {
+            TextGenerator tg = new TextGenerator();
+
+            String texto = tg.generarAnalisisApartado(
+                    sesion.slugAnalisis,
+                    sesion.datosImagenes,
+                    sesion.cuestionario
+            );
+
+            System.out.println(texto);
+
+            return Map.of(
+                "status", "ok",
+                "analisis_texto", texto
+            );
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Map.of(
+                "status", "error",
+                "msg", e.getMessage()
+            );
+        }
     }
 
     private Map<String, Object> generarFeaturesGlobales(Map<String, Map<String, Object>> f) {

@@ -1,13 +1,17 @@
 <div class="max-w-2xl mx-auto bg-white shadow-md rounded-lg p-8 space-y-6">
 
     <h2 class="text-3xl font-bold text-gray-900 text-center">
-        {{ parttitle }}
+        {{ $parttitle }}
     </h2>
 
     <div class="w-20 h-1 bg-blue-600 mx-auto rounded"></div>
 
-    <p class="text-gray-700 leading-relaxed text-lg text-justify">
-        {{ explanation }}
+    <p class="text-gray-700 leading-relaxed text-lg text-justify whitespace-pre-line">
+        {{ $explanation }}
+    </p>
+
+    <p class="text-gray-700 leading-relaxed text-lg text-justify whitespace-pre-line">
+        {{ $generatedtext }}
     </p>
 
 </div>

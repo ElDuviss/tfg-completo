@@ -15,9 +15,9 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id');
             $table->string('type');
-            $table->json('answers')->nullable();
+            $table->json('cuestionario_json')->nullable();
+            $table->json('fotos_json')->nullable();
             $table->longText('ai_response')->nullable();
-            $table->json('extra_data')->nullable();
             $table->timestamps();
             $table->foreign('user_id')->references('id')->on('usuarios')->onDelete('cascade');
         });
