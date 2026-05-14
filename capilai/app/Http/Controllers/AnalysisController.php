@@ -28,8 +28,7 @@ class AnalysisController extends Controller
         $datosCuestionario = json_decode($contenidoArchivo, true);
 
         $DatosImagenes = null;
-
-        foreach ($fotos as $index => $foto) {
+        foreach ($fotos as $foto) {
             $DatosImagenes = Http::post('http://capilai-n8n:5678/webhook/enviar-fotos', [
                 'slug_foto' => $foto->slug,
                 'base64'    => $foto->base64,
@@ -38,7 +37,9 @@ class AnalysisController extends Controller
 
         $features = $DatosImagenes->json();
 
-        $analysisPrevio = Analysis::where('user_id', $userId)->where('type', $slug)->first();
+        $analysisPrevio = Analysis::where('user_id', $userId)
+            ->where('type', $slug)
+            ->first();
 
         $Generar = true;
         $textoGenerado = null;
@@ -50,6 +51,7 @@ class AnalysisController extends Controller
 
             if ($cuestionarioIgual && $fotosIguales) {
                 $Generar = false;
+                $textoGenerado = $analysisPrevio->ai_response;
             }
 
         } else {
@@ -58,12 +60,9 @@ class AnalysisController extends Controller
                 ->where('type', $slug)
                 ->get();
 
-            $encontrado = false;
-
             foreach ($analisisCoincidentes as $analisis) {
 
                 if ($this->fotosSonIguales($analisis->fotos_json, $features)) {
-
 
                     $textoGenerado = $analisis->ai_response;
 
@@ -76,13 +75,8 @@ class AnalysisController extends Controller
                     ]);
 
                     $Generar = false;
-                    $encontrado = true;
                     break;
                 }
-            }
-
-            if (!$encontrado) {
-                $Generar = true;
             }
         }
 
@@ -107,7 +101,6 @@ class AnalysisController extends Controller
                     'ai_response' => $textoGenerado,
                 ]
             );
-
         }
     }
 
@@ -140,5 +133,4 @@ class AnalysisController extends Controller
 
         return true;
     }
-
 }
