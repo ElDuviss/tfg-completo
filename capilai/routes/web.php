@@ -7,6 +7,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CuestionarioController;
 use App\Http\Controllers\FotoController;
 use App\Http\Controllers\AnalysisController;
+use App\Http\Controllers\ChatController;
+use App\Http\Controllers\DatofotoController;
 
 Route::post('/usuarios', [UsuarioController::class, 'store'])->name('usuarios.store');
 Route::get('/usuarios', [UsuarioController::class, 'index'])->name('usuarios.index');
@@ -31,3 +33,5 @@ Route::get('/fotos-validadas/{user_id}', function($user_id) {
                            ->where('valida', true)
                            ->get();
 });
+Route::post('/chat/enviar', [ChatController::class, 'enviar']);
+Route::post('/datofotos/guardar', [DatofotoController::class, 'guardar']);

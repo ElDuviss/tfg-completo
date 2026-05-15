@@ -4,6 +4,7 @@ namespace App\Tags;
 
 use Statamic\Tags\Tags;
 use App\Models\Analysis;
+use Illuminate\Support\Facades\Storage;
 
 class HairAnalysis extends Tags
 {
@@ -16,6 +17,15 @@ class HairAnalysis extends Tags
             ->where('type', $slug)
             ->first();
 
-        return $analysis ? $analysis->ai_response : 'No hay análisis disponible.';
+        if (!$analysis) {
+            return 'No hay análisis disponible.';
+        }
+
+        if (Storage::exists($analysis->ai_response)) {
+            $contenido = Storage::get($analysis->ai_response);
+            return nl2br(e($contenido));
+        }
+
+        return 'Archivo de análisis no encontrado.';
     }
 }

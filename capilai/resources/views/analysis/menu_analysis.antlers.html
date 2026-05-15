@@ -53,4 +53,67 @@ async function enviarDatos(slug, userId) {
 
     </div>
 
+    <div class="mt-10 max-w-xl mx-auto bg-white shadow-lg rounded-lg p-6">
+        <h2 class="text-2xl font-bold mb-4 text-gray-800">Chat con tu asistente capilar</h2>
+
+        <div id="chat-box" class="h-96 overflow-y-auto bg-gray-50 p-4 space-y-3">
+            <!-- Los mensajes aparecerán aquí -->
+        </div>
+
+        <div class="flex mt-4">
+            <input 
+                id="chat-input"
+                type="text"
+                placeholder="Escribe tu mensaje y pulsa Enter..."
+                class="flex-1 border border-gray-300 rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+        </div>
+    </div>
+
 </div>
+
+<script>
+document.getElementById('chat-input').addEventListener('keydown', async function(e) {
+    if (e.key === 'Enter') {
+        const mensaje = this.value.trim();
+        if (!mensaje) return;
+
+        const box = document.getElementById('chat-box');
+
+        // Burbuja del usuario (sin color, solo texto en negrita)
+        const userBubble = document.createElement('div');
+        userBubble.className = 'flex justify-end';
+        userBubble.innerHTML = `
+            <div class="font-bold text-gray-800 px-3 py-1 rounded-3xl mb-1 max-w-[75%] bg-transparent">
+                ${mensaje}
+            </div>
+        `;
+        box.appendChild(userBubble);
+        this.value = '';
+
+        // Enviar al backend
+        const res = await fetch('/chat/enviar', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({ mensaje })
+        });
+
+        const data = await res.json();
+
+        // Burbuja de respuesta (también sin color, texto en negrita)
+        const aiBubble = document.createElement('div');
+        aiBubble.className = 'flex justify-start';
+        aiBubble.innerHTML = `
+            <div class="font-bold text-gray-800 px-3 py-1 rounded-3xl mb-1 max-w-[75%] bg-transparent">
+                ${data.respuesta}
+            </div>
+        `;
+        box.appendChild(aiBubble);
+
+        box.scrollTop = box.scrollHeight;
+    }
+});
+</script>

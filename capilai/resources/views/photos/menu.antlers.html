@@ -2,6 +2,21 @@
     class="max-w-xl mx-auto py-10 space-y-8"
     x-data="{
         todasCompletas: false,
+
+        async guardarYContinuar() {
+            // Llamar a tu controlador DatofotoController@guardar
+            await fetch('/datofotos/guardar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token }}'
+                }
+            });
+
+            // Redirigir después de guardar
+            window.location.href = '/analysis/menu_analysis';
+        },
+
         check() {
             const items = document.querySelectorAll('[data-foto]');
             this.todasCompletas = [...items].every(i => i.dataset.valida === 'true');
@@ -45,7 +60,7 @@
                 ? 'bg-green-600 hover:bg-green-700 cursor-pointer' 
                 : 'bg-blue-600 opacity-50 cursor-not-allowed'"
             :disabled="!todasCompletas"
-            @click="if(todasCompletas) window.location.href='/analysis/menu_analysis'"
+            @click="if(todasCompletas) guardarYContinuar()"
         >
             Continuar
         </button>
