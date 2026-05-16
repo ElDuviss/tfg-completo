@@ -17,7 +17,7 @@ async function enviarDatos(slug, userId) {
 </script>
 
 
-<div class="max-w-xl mx-auto py-10 space-y-8">
+<div class="max-w-3xl mx-auto py-10 space-y-8">
 
     <h1 class="text-3xl font-bold text-center">Resultados del análisis</h1>
 
@@ -53,19 +53,18 @@ async function enviarDatos(slug, userId) {
 
     </div>
 
-    <div class="mt-10 max-w-xl mx-auto bg-white shadow-lg rounded-lg p-6">
-        <h2 class="text-2xl font-bold mb-4 text-gray-800">Chat con tu asistente capilar</h2>
+    <div id="chat-container" class="mt-10 max-w-3xl mx-auto bg-white rounded-xl p-8 transition-all duration-300">
+        <h2 class="text-2xl font-bold mb-6 text-gray-800 text-center">Chat con tu asistente capilar</h2>
 
-        <div id="chat-box" class="h-96 overflow-y-auto bg-gray-50 p-4 space-y-3">
-            <!-- Los mensajes aparecerán aquí -->
+        <div id="chat-box" class="h-[600px] overflow-y-auto bg-white p-6 space-y-4 rounded-lg shadow-inner hidden border border-gray-200">
         </div>
 
-        <div class="flex mt-4">
+        <div class="flex mt-6 justify-center">
             <input 
                 id="chat-input"
                 type="text"
                 placeholder="Escribe tu mensaje y pulsa Enter..."
-                class="flex-1 border border-gray-300 rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="w-[90%] border border-gray-300 rounded-full px-6 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
             >
         </div>
     </div>
@@ -73,25 +72,41 @@ async function enviarDatos(slug, userId) {
 </div>
 
 <script>
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('chat-box').innerHTML = '';
+});
+
 document.getElementById('chat-input').addEventListener('keydown', async function(e) {
     if (e.key === 'Enter') {
         const mensaje = this.value.trim();
         if (!mensaje) return;
 
         const box = document.getElementById('chat-box');
+        const container = document.getElementById('chat-container');
 
-        // Burbuja del usuario (sin color, solo texto en negrita)
-        const userBubble = document.createElement('div');
-        userBubble.className = 'flex justify-end';
-        userBubble.innerHTML = `
-            <div class="font-bold text-gray-800 px-3 py-1 rounded-3xl mb-1 max-w-[75%] bg-transparent">
-                ${mensaje}
+        box.classList.remove('hidden');
+        container.classList.add('border', 'border-gray-300', 'shadow-lg');
+
+        box.innerHTML += `
+            <div class="flex justify-end">
+                <div class="bg-blue-600 text-white px-4 py-2 rounded-3xl shadow-md max-w-[70%] text-sm leading-relaxed">
+                    ${mensaje}
+                </div>
             </div>
         `;
-        box.appendChild(userBubble);
+
         this.value = '';
 
-        // Enviar al backend
+        const typing = document.createElement('div');
+        typing.className = 'flex justify-start';
+        typing.innerHTML = `
+            <div class="bg-gray-200 text-gray-600 px-4 py-2 rounded-3xl shadow-sm max-w-[70%] text-sm italic">
+                El asistente está escribiendo...
+            </div>
+        `;
+        box.appendChild(typing);
+        box.scrollTop = box.scrollHeight;
+
         const res = await fetch('/chat/enviar', {
             method: 'POST',
             headers: {
@@ -103,15 +118,11 @@ document.getElementById('chat-input').addEventListener('keydown', async function
 
         const data = await res.json();
 
-        // Burbuja de respuesta (también sin color, texto en negrita)
-        const aiBubble = document.createElement('div');
-        aiBubble.className = 'flex justify-start';
-        aiBubble.innerHTML = `
-            <div class="font-bold text-gray-800 px-3 py-1 rounded-3xl mb-1 max-w-[75%] bg-transparent">
+        typing.innerHTML = `
+            <div class="bg-gray-100 text-gray-800 px-4 py-2 rounded-3xl shadow-md max-w-[70%] text-sm leading-relaxed whitespace-pre-line">
                 ${data.respuesta}
             </div>
         `;
-        box.appendChild(aiBubble);
 
         box.scrollTop = box.scrollHeight;
     }

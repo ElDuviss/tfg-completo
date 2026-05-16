@@ -23,7 +23,8 @@ class HairAnalysis extends Tags
 
         if (Storage::exists($analysis->ai_response)) {
             $contenido = Storage::get($analysis->ai_response);
-            return nl2br(e($contenido));
+            $contenidoLimpio = str_replace('*', '', $contenido);
+            return nl2br(e($contenidoLimpio));
         }
 
         return 'Archivo de análisis no encontrado.';

@@ -43,7 +43,6 @@ public class TextGenerator {
 
     private String extraerContenido(String json) {
         try {
-            // Buscar "content":"..."
             int index = json.indexOf("\"content\":");
             if (index == -1) return json;
 
@@ -100,6 +99,62 @@ public class TextGenerator {
             throws IOException, InterruptedException {
 
         String prompt = construirPrompt(slug, datosImagenes, cuestionario);
+        return generarTextoIA(prompt);
+    }
+
+    public boolean esPreguntaCapilarIA(String pregunta) throws IOException, InterruptedException {
+
+        String prompt = """
+        Analiza la siguiente pregunta y responde SOLO con "SI" o "NO".
+
+        ¿La pregunta trata sobre cabello, cuero cabelludo, alopecia, caída del pelo, tintes, coloración,
+        tratamientos capilares, enfermedades del cuero cabelludo o cuidados del pelo?
+
+        Pregunta:
+        %s
+        """.formatted(pregunta);
+
+        String respuesta = generarTextoIA(prompt).trim().toUpperCase();
+
+        return respuesta.contains("SI");
+    }
+
+    public String construirPromptChat(String pregunta,
+                                      Map<String, Object> datosImagenes,
+                                      Map<String, Object> cuestionario) {
+
+        return """
+        Eres un experto en salud capilar y dermatología. Responde de forma profesional, humana y personalizada.
+
+        PREGUNTA DEL USUARIO:
+        %s
+
+        === DATOS DE IMÁGENES ===
+        %s
+
+        === CUESTIONARIO ===
+        %s
+
+        Instrucciones:
+        - Responde de forma clara, profesional y empática.
+        - Usa los datos del usuario para personalizar la respuesta.
+        - Da recomendaciones prácticas y realistas.
+        - No inventes datos que no estén en las imágenes o cuestionario.
+        - Mantén un tono humano y cercano.
+        """.formatted(pregunta, datosImagenes, cuestionario);
+    }
+
+    public String generarRespuestaChat(String pregunta,
+                                       Map<String, Object> datosImagenes,
+                                       Map<String, Object> cuestionario)
+            throws IOException, InterruptedException {
+
+        if (!esPreguntaCapilarIA(pregunta)) {
+            return "Puedo ayudarte únicamente con temas relacionados con el cabello, el cuero cabelludo, los tintes y sus cuidados. Intenta reformular tu pregunta dentro de ese ámbito.";
+        }
+
+        String prompt = construirPromptChat(pregunta, datosImagenes, cuestionario);
+
         return generarTextoIA(prompt);
     }
 }

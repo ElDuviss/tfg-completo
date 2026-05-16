@@ -38,7 +38,6 @@ class FotoController extends Controller
         $valida = in_array(strtolower($raw), ['true', '1'], true);
 
         if (!$valida) {
-            \Illuminate\Support\Facades\Log::info('erro');
             return back()->with('error', $response->json()['mensaje']);
         }
 
