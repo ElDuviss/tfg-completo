@@ -1,11 +1,11 @@
 ---
 id: abd3bfbb-62ae-4dc3-8f8f-4c114b9d7834
 blueprint: photo
-title: 'Foto frontal'
+title: 'Foto de frente'
 author: 7b5c4b10-da13-41d2-8a51-65e901258282
 template: photos/photos
 updated_by: 7b5c4b10-da13-41d2-8a51-65e901258282
-updated_at: 1775814867
+updated_at: 1779095337
 valida: true
 text: 'En la foto frontal, colócate mirando directamente a la cámara con la cabeza recta y la expresión relajada. La cámara debe estar a la altura de tus ojos y centrada, de modo que se vea toda la frente, la línea del cabello y ambos lados del rostro. Asegúrate de que la iluminación sea uniforme y que no haya sombras que oculten la zona frontal del cabello.'
 ---

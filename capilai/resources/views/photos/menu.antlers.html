@@ -1,68 +1,139 @@
-<div 
-    class="max-w-xl mx-auto py-10 space-y-8"
-    x-data="{
-        todasCompletas: false,
+<div  class="max-w-4xl mx-auto py-10 space-y-8"
 
-        async guardarYContinuar() {
-            // Llamar a tu controlador DatofotoController@guardar
-            await fetch('/datofotos/guardar', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token }}'
+    x-data="{
+        todasCompletas:false,
+        progreso:0,
+
+        async guardarYContinuar(){
+
+            await fetch('/datofotos/guardar',{
+                method:'POST',
+                headers:{
+                    'Content-Type':'application/json',
+                    'X-CSRF-TOKEN':'{{ csrf_token }}'
                 }
             });
 
-            // Redirigir después de guardar
-            window.location.href = '/analysis/menu_analysis';
+            window.location.href='/analysis/menu_analysis';
         },
 
-        check() {
-            const items = document.querySelectorAll('[data-foto]');
-            this.todasCompletas = [...items].every(i => i.dataset.valida === 'true');
+        check(){
+
+            const items=document.querySelectorAll('[data-foto]');
+
+            const completadas=[...items]
+                .filter(i=>i.dataset.valida==='true')
+                .length;
+
+            this.progreso=
+                (completadas/items.length)*100;
+
+            this.todasCompletas=
+                completadas===items.length;
         }
     }"
+
     x-init="check()"
 >
 
-    <h1 class="text-3xl font-bold text-center">Sube tus fotos</h1>
+    <div class="text-center">
 
-    <div class="grid grid-cols-1 gap-4">
+        <h1 class="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-slate-900">
+
+            Sube tus fotografías
+
+        </h1>
+
+        <p class="mt-4 text-lg text-slate-600 max-w-2xl mx-auto">
+
+            Completa las fotografías solicitadas para continuar con el análisis.
+
+        </p>
+
+    </div>
+
+    <div class="grid grid-cols-3 items-center w-full">
+
+        <h2 class="text-xl font-bold text-slate-800 text-center">
+            Progreso de subida
+            <span x-text="progreso"></span>%
+        </h2>
+
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 place-items-center">
 
         {{ collection:photos sort="order" }}
 
             <a 
                 href="{{ url }}"
                 data-foto
-                data-valida="{{ valida ? 'true' : 'false' }}"
-                @click="setTimeout(() => check(), 300)"
-                class="
-                    block text-center px-4 py-3 rounded font-semibold
+                data-valida="{{ valida ? 'true':'false' }}"
+                @click="setTimeout(()=>check(), 300)"
+
+                class="flex items-center gap-4 p-5 rounded-xl border transition min-h-[140px] w-[70%] md:w-full justify-self-center
+
                     {{ if valida }}
-                        bg-green-600 text-white pointer-events-none opacity-70
+
+                        bg-green-600 text-white border-green-600 pointer-events-none opacity-80
+
                     {{ else }}
-                        bg-blue-600 text-white hover:bg-blue-700
+
+                        bg-white text-gray-900 border-gray-300 hover:bg-gray-100
+
                     {{ /if }}
-                "
-            >
-                {{ title }}
+
+            ">
+
+                <div class="flex-shrink-0">
+
+                    <svg 
+                        xmlns="http://www.w3.org/2000/svg" 
+                        fill="none" 
+                        viewBox="0 0 24 24" 
+                        stroke-width="1.5" 
+                        stroke="currentColor" 
+                        class="w-20 h-20 md:w-24 md:h-24"
+                    >
+
+                        <path 
+                            stroke-linecap="round" 
+                            stroke-linejoin="round" 
+                            d="M15.182 15.182a4.5 4.5 0 0 1-6.364 0M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0ZM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75Zm-.375 0h.008v.015h-.008V9.75Zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75Zm-.375 0h.008v.015h-.008V9.75Z" 
+                        />
+
+                    </svg>
+
+                </div>
+
+                <span class="flex-1 text-xl lg:text-2xl font-bold">
+                    {{ title }}
+                </span>
+
             </a>
 
         {{ /collection:photos }}
 
     </div>
 
-    <div class="text-center mt-8">
+    <div class="text-center mt-12">
 
         <button
-            class="px-6 py-3 rounded font-bold text-white transition"
-            :class="todasCompletas 
-                ? 'bg-green-600 hover:bg-green-700 cursor-pointer' 
-                : 'bg-blue-600 opacity-50 cursor-not-allowed'"
+            class="min-w-[340px] px-4 py-4 rounded-2xl text-2xl md:text-3xl font-bold text-black bg-white border border-gray-300 rounded-lg transition-all duration-200"
+
+            :class="
+                todasCompletas
+                    ? 'hover:bg-gray-100 cursor-pointer shadow-lg'
+                    : 'opacity-50 cursor-not-allowed'
+            "
+
             :disabled="!todasCompletas"
+
             @click="if(todasCompletas) guardarYContinuar()"
         >
+
             Continuar
+
         </button>
 
     </div>
