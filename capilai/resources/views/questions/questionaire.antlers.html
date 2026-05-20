@@ -1,10 +1,11 @@
 <form 
     method="post" 
     action="/guardar-cuestionario" 
-    class="max-w-3xl mx-auto space-y-16 text-center mt-4"
+    class="max-w-4xl mx-auto space-y-16 mt-10 px-6"
     x-data="{
         respuestas: {},
         error: false,
+
         validar() {
             const totalPreguntas = document.querySelectorAll('[data-question]').length;
 
@@ -25,59 +26,105 @@
     {{ csrf_field }}
 
     {{ collection:questions sort="order" }}
-        <section class="space-y-12" data-question>
 
-            <h2 class="text-xl lg:text-2xl font-bold mt-10 mb-6">
+        <section 
+            class="space-y-12 bg-[#f7f5ef] p-8 lg:p-10"
+            data-question
+        >
+
+            <!-- TITULO -->
+            <h2 class="text-3xl lg:text-4xl font-bold text-[#14253d] border-b border-[#d7d0c5] pb-6 text-center">
                 {{ title }}
             </h2>
 
             {{ replicator }}
 
-                <div class="mb-12">
-                    <h3 class="text-base lg:text-lg font-semibold mb-4">
+                <!-- TARJETA -->
+                <div 
+                    class="p-6 lg:p-8 bg-white border border-[#e5e0d6] rounded-2xl shadow-sm transition-all"
+                >
+
+                    <!-- PREGUNTA -->
+                    <h3 class="text-xl lg:text-2xl font-semibold text-[#14253d] mb-6 text-center">
                         {{ question }}
                     </h3>
 
+                    <!-- SELECT PERSONALIZADO -->
                     <div 
-                        x-data="{ selected: null }" 
-                        class="flex flex-wrap gap-4 justify-center"
+                        x-data="{ selected: null, open: false }"
+                        class="relative max-w-2xl mx-auto"
+                        @click.outside="open = false"
                     >
-                        {{ answers | explode("\n") }}
-                            <button 
-                                type="button"
-                                @click="
-                                    selected = '{{ value }}';
-                                    respuestas['{{ question | slugify }}'] = '{{ value }}';
-                                "
-                                :class="selected === '{{ value }}' 
-                                    ? 'bg-blue-600 text-white' 
-                                    : 'bg-gray-200 text-gray-800'"
-                                class="px-4 py-2 rounded-lg transition"
-                            >
-                                {{ value }}
-                            </button>
 
-                            <input 
-                                type="hidden" 
-                                name="{{ question | slugify }}" 
-                                :value="selected"
-                            >
-                        {{ /answers }}
+                        <!-- BOTON -->
+                        <button type="button" @click="open = !open" class="w-full px-4 py-3 bg-gray-100 border rounded-lg text-center text-gray-700 font-medium hover:bg-gray-200 transition" > 
+                            <span x-text="selected ?? 'Selecciona una opción'"></span> 
+                        </button>
+
+                        <!-- OPCIONES -->
+                        <div 
+                            x-show="open"
+                            x-transition
+                            class="absolute left-1/2 -translate-x-1/2 top-full mt-2 min-w-[260px] max-w-[340px] bg-white border rounded-lg shadow-xl overflow-hidden z-50"
+                        >
+
+                            {{ answers | explode("\n") }}
+
+                                <div 
+                                    class="
+                                        px-6
+                                        py-4
+                                        text-lg
+                                        text-[#24364d]
+                                        cursor-pointer
+                                        hover:bg-[#eef3fa]
+                                        hover:text-[#14253d]
+                                        transition
+                                        border-b
+                                        border-[#f1ece4]
+                                        last:border-b-0
+                                    "
+                                    @click="
+                                        selected = '{{ value }}';
+                                        respuestas['{{ question | slugify }}'] = '{{ value }}';
+                                        open = false;
+                                    "
+                                >
+                                    {{ value }}
+                                </div>
+
+                            {{ /answers }}
+
+                        </div>
+
+                        <input 
+                            type="hidden" 
+                            name="{{ question | slugify }}" 
+                            :value="selected"
+                        >
+
                     </div>
+
                 </div>
 
             {{ /replicator }}
 
         </section>
+
     {{ /collection:questions }}
 
-    <div x-show="error" class="text-red-600 font-semibold">
+    <!-- ERROR -->
+    <div 
+        x-show="error"
+        class="text-red-600 font-semibold text-center"
+    >
         Debes completar todas las preguntas antes de continuar.
     </div>
 
+    <!-- BOTON -->
     <button 
         type="submit"
-        class="mt-12 px-6 py-3 bg-green-600 text-white rounded text-lg font-semibold block mx-auto"
+        class="mt-12 px-6 py-3 bg-green-600 text-white rounded text-lg font-semibold block mx-auto hover:bg-green-700 transition"
     >
         Guardar
     </button>
