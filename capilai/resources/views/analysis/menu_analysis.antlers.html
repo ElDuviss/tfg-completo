@@ -1,20 +1,31 @@
-<script>
-async function enviarDatos(slug, userId) {
-    await fetch('/analysis/store-json', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token }}'
-        },
-        body: JSON.stringify({
-            user_id: userId,
-            slug: slug
-        })
-    });
+<div 
+    id="pantalla-carga"
+    class="hidden fixed inset-0 bg-white z-[9999] flex flex-col items-center justify-center p-6 select-none"
+>
+    
+    <h3 class="text-xl font-bold text-[#14253d] text-center mb-2 tracking-tight">
+        Procesando tu informe capilar<span class="dots"></span>
+    </h3>
 
-    window.location.href = `/analysis/${slug}`;
-}
-</script>
+    <p class="text-sm text-gray-500 text-center animate-pulse max-w-xs">
+        Nuestro sistema está cruzando tus datos biológicos y síntomas para generar el diagnóstico personalizado.
+    </p>
+</div>
+
+<style>
+    .dots::after {
+        content: '';
+        display: inline-block;
+        animation: dots 1.5s steps(3, end) infinite;
+    }
+
+    @keyframes dots {
+        0%   { content: ''; }
+        33%  { content: '.'; }
+        66%  { content: '..'; }
+        100% { content: '...'; }
+    }
+</style>
 
 
 <div class="max-w-3xl mx-auto py-10 space-y-8">
@@ -31,33 +42,22 @@ async function enviarDatos(slug, userId) {
         {{ collection:analysis sort="order" }}
 
         <div>
-
-            <button onclick="enviarDatos('{{ slug }}', {{ session:usuario_id }})"
-                class=" flex items-center gap-4 p-5 rounded-xl border transition w-full min-h-[140px] bg-white text-gray-900 border-gray-300 hover:bg-gray-100 hover:shadow-lg " >
+            <button data-slug="{{ slug }}" data-user="{{ session:usuario_id }}"
+                class="boton-analisis flex items-center gap-4 p-5 rounded-xl border transition w-full min-h-[140px] bg-white text-gray-900 border-gray-300 hover:bg-gray-100 hover:shadow-lg " >
 
                 <div class="flex-shrink-0">
-
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-20 h-20 sm:w-24 md:h-24" >
-
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184" />
-
                     </svg>
-
                 </div>
 
-
                 <div class="flex-1 text-left">
-
                     <span class="text-lg md:text-xl lg:text-2xl xl:text-3xl font-bold leading-tight ">
-
                         {{ parttitle }}
-
                     </span>
-
                 </div>
 
             </button>
-
         </div>
 
         {{ /collection:analysis }}
@@ -65,40 +65,75 @@ async function enviarDatos(slug, userId) {
     </div>
 
     <div class="flex flex-col items-center justify-center gap-4 mt-4">
-
         <p class="text-center text-gray-700 text-sm sm:text-base max-w-md">
             Si has sufrido cambios recientes en tu cabello y ya no está igual que antes, 
             puedes volver a realizar el cuestionario para obtener un análisis actualizado y más preciso.
         </p>
-
-        <a 
-            href="/questionaire"
-            class="px-4 py-4 rounded-xl text-lg font-semibold text-black bg-white border border-gray-300 transition-all duration-200 hover:bg-gray-100"
-        >
+        <a href="/questionaire" class="px-4 py-4 rounded-xl text-lg font-semibold text-black bg-white border border-gray-300 transition-all duration-200 hover:bg-gray-100">
             Rehacer cuestionario
         </a>
-
     </div>
 
     <div id="chat-container" class="mt-10 max-w-3xl mx-auto bg-white rounded-xl p-8 transition-all duration-300">
         <h2 class="text-2xl font-bold mb-6 text-gray-800 text-center">Chat con tu asistente capilar</h2>
-
-        <div id="chat-box" class="h-[600px] overflow-y-auto bg-white p-6 space-y-4 rounded-lg shadow-inner hidden border border-gray-200">
-        </div>
-
+        <div id="chat-box" class="h-[600px] overflow-y-auto bg-white p-6 space-y-4 rounded-lg shadow-inner hidden border border-gray-200"></div>
         <div class="flex mt-6 justify-center">
-            <input 
-                id="chat-input"
-                type="text"
-                placeholder="Escribe tu mensaje y pulsa Enter..."
-                class="w-[90%] border border-gray-300 rounded-full px-6 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm"
-            >
+            <input id="chat-input" type="text" placeholder="Escribe tu mensaje y pulsa Enter..." class="w-[90%] border border-gray-300 rounded-full px-6 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm">
         </div>
     </div>
 
 </div>
 
 <script>
+// CONTROL DE LOS BOTONES DE ANÁLISIS
+document.querySelectorAll('.boton-analisis').forEach(boton => {
+    boton.addEventListener('click', async function() {
+        const slug = this.getAttribute('data-slug');
+        const userId = this.getAttribute('data-user');
+        const loader = document.getElementById('pantalla-carga');
+
+        // Mostramos la pantalla de carga
+        loader.classList.remove('hidden');
+
+        // Fijamos una animación de 2.5 segundos para dar sensación real de procesamiento clínico
+        const tiempoMinimo = new Promise(resolve => setTimeout(resolve, 2500));
+
+        // Lanzamos la petición al servidor simultáneamente
+        const peticionServidor = fetch('/analysis/store-json', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                user_id: userId,
+                slug: slug
+            })
+        });
+
+        try {
+            await Promise.all([peticionServidor, tiempoMinimo]);
+        } catch (error) {
+            console.error("Error al procesar la petición:", error);
+        }
+
+        // Redirigimos al usuario
+        window.location.href = `/analysis/${slug}`;
+    });
+});
+
+// TRUCO PARA EL BOTÓN "ATRÁS": Asegura que al regresar a esta página la carga se oculte
+window.addEventListener('pageshow', function(event) {
+    // Si la página se carga desde la caché del historial (botón atrás)
+    if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
+        const loader = document.getElementById('pantalla-carga');
+        if (loader) {
+            loader.classList.add('hidden'); // Volvemos a ocultar el loader automáticamente
+        }
+    }
+});
+
+// CONTROL DE TU CHAT (Mantenido intacto)
 document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('chat-box').innerHTML = '';
 });
