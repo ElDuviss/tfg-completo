@@ -4,7 +4,7 @@ blueprint: question
 title: Alopecia
 author: 7b5c4b10-da13-41d2-8a51-65e901258282
 updated_by: 7b5c4b10-da13-41d2-8a51-65e901258282
-updated_at: 1774263624
+updated_at: 1779356159
 template: questions/questionaire
 replicator:
   -
@@ -71,4 +71,18 @@ replicator:
       No estoy seguro
     type: new_set
     enabled: true
+order: 6
+explanation:
+  -
+    type: paragraph
+    content:
+      -
+        type: text
+        text: 'La pérdida de cabello se manifiesta de formas muy distintas según su origen. Identificar si el retroceso se localiza en zonas específicas como las entradas o la coronilla nos ayuda a diferenciar entre patrones típicos de la alopecia androgenética y otros tipos de caída. Además, detectar una pérdida excesiva diaria o notar que los nuevos cabellos nacen cada vez más finos y cortos (proceso de miniaturización) nos da una señal clara de la velocidad y el estado actual del proceso capilar.'
+  -
+    type: paragraph
+    content:
+      -
+        type: text
+        text: 'Detallar estos cambios visuales es fundamental para determinar el tipo de progresión y diseñar una estrategia de recuperación adecuada.'
 ---

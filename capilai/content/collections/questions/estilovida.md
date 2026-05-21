@@ -1,10 +1,10 @@
 ---
 id: 742e3373-f294-4484-9903-bf66bdf00010
 blueprint: question
-title: EstiloVida
+title: 'Estilo de Vida'
 author: 7b5c4b10-da13-41d2-8a51-65e901258282
 updated_by: 7b5c4b10-da13-41d2-8a51-65e901258282
-updated_at: 1774263801
+updated_at: 1779355910
 template: questions/questionaire
 replicator:
   -
@@ -141,4 +141,18 @@ replicator:
       Muy baja
     type: new_set
     enabled: true
+order: 2
+explanation:
+  -
+    type: paragraph
+    content:
+      -
+        type: text
+        text: 'Tu cabello es un reflejo directo de tus hábitos diarios y de cómo cuidas tu cuerpo por dentro. Factores como el estrés elevado y la falta de sueño de calidad alteran los niveles de cortisol, acelerando la caída. Asimismo, la alimentación, la actividad física y el consumo de sustancias cotidianas (como el café, el tabaco o el alcohol) influyen de manera directa en la oxigenación y en los nutrientes que recibe el folículo piloso.'
+  -
+    type: paragraph
+    content:
+      -
+        type: text
+        text: 'Cuéntanos cómo es tu día a día para ayudarnos a identificar qué factores externos o ambientales podrían estar debilitando tu salud capilar.'
 ---

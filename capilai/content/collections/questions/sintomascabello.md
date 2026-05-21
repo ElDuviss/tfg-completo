@@ -1,10 +1,10 @@
 ---
 id: 4a3f1336-1977-4d92-aab5-b8f95836e3ea
 blueprint: question
-title: SintomasCabello
+title: 'Síntomas del Cabello'
 author: 7b5c4b10-da13-41d2-8a51-65e901258282
 updated_by: 7b5c4b10-da13-41d2-8a51-65e901258282
-updated_at: 1774263996
+updated_at: 1779356105
 template: questions/questionaire
 replicator:
   -
@@ -91,4 +91,18 @@ replicator:
       No estoy seguro
     type: new_set
     enabled: true
+order: 5
+explanation:
+  -
+    type: paragraph
+    content:
+      -
+        type: text
+        text: 'Un cabello fuerte solo puede crecer en un cuero cabelludo sano. Síntomas como el picor constante, la descamación (caspa), la irritación o el exceso de grasa no son simples molestias estéticas; son señales de alerta que indican inflamación, desequilibrios en el microbioma de la piel o alteraciones en las glándulas sebáceas. Incluso la sensibilidad o el dolor al tacto pueden estar ligados a procesos que debilitan la raíz desde el interior.'
+  -
+    type: paragraph
+    content:
+      -
+        type: text
+        text: 'Identificar estos síntomas nos permite evaluar el estado de tu piel para entender si el entorno donde nace tu cabello está sufriendo alguna alteración.'
 ---

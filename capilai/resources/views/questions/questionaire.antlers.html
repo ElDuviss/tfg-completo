@@ -3,12 +3,72 @@
     action="/guardar-cuestionario" 
     class="max-w-4xl mx-auto space-y-16 mt-10 px-6"
     x-data="{
+        pasoActual: 0,
         respuestas: {},
         error: false,
 
-        validar() {
-            const totalPreguntas = document.querySelectorAll('[data-question]').length;
+        get totalPasos() {
+            return document.querySelectorAll('[data-question]').length;
+        },
 
+        get pasosCompletados() {
+            let completados = 0;
+            const secciones = document.querySelectorAll('[data-question]');
+            
+            secciones.forEach((seccion) => {
+                const inputs = seccion.querySelectorAll('input[type=\'hidden\']');
+                if (inputs.length > 0) {
+                    let seccionValida = true;
+                    inputs.forEach((input) => {
+                        const name = input.getAttribute('name');
+                        if (!this.respuestas[name]) {
+                            seccionValida = false;
+                        }
+                    });
+                    if (seccionValida) completados++;
+                }
+            });
+            return completados;
+        },
+
+        validarPasoActual() {
+            const secciones = document.querySelectorAll('[data-question]');
+            const seccionActiva = secciones[this.pasoActual];
+            
+            if (!seccionActiva) return false;
+
+            const inputsEnPaso = seccionActiva.querySelectorAll('input[type=\'hidden\']');
+            
+            for (let input of inputsEnPaso) {
+                const name = input.getAttribute('name');
+                if (!this.respuestas[name]) {
+                    this.error = true;
+                    return false;
+                }
+            }
+            this.error = false;
+            return true;
+        },
+
+        siguiente() {
+            if (this.validarPasoActual()) {
+                if (this.pasoActual < this.totalPasos - 1) {
+                    this.pasoActual++;
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            }
+        },
+
+        anterior() {
+            this.error = false;
+            if (this.pasoActual > 0) {
+                this.pasoActual--;
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        },
+
+        validarFinal() {
+            const totalPreguntas = document.querySelectorAll('[data-question] input[type=\'hidden\']').length;
             const contestadas = Object.keys(this.respuestas).length;
 
             if (contestadas < totalPreguntas) {
@@ -20,7 +80,7 @@
             return true;
         }
     }"
-    @submit.prevent="if (validar()) $el.submit()"
+    @submit.prevent="if (validarFinal()) $el.submit()"
 >
 
     {{ csrf_field }}
@@ -28,40 +88,52 @@
     {{ collection:questions sort="order" }}
 
         <section 
-            class="space-y-12 bg-[#f7f5ef] p-8 lg:p-10"
+            class="space-y-12 bg-[#f7f5ef] p-8 lg:p-10 rounded-2xl"
             data-question
+            x-show="pasoActual === {{ index }}"
+            x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0 transform translate-x-4"
+            x-transition:enter-end="opacity-100 transform translate-x-0"
         >
 
-            <!-- TITULO -->
-            <h2 class="text-3xl lg:text-4xl font-bold text-[#14253d] border-b border-[#d7d0c5] pb-6 text-center">
+            <h2 class="text-3xl lg:text-4xl font-bold text-[#14253d] border-b border-[#d7d0c5] pb-6 text-center tracking-tight">
                 {{ title }}
             </h2>
 
+            {{ if explanation }}
+                <div class="space-y-4 mt-8 max-w-2xl mx-auto bg-white/95 flex flex-col items-center justify-center transition-all duration-300">
+
+                    <p class="text-sm lg:text-base leading-relaxed text-gray-600 text-center font-normal mb-8 max-w-prose">
+                        {{ explanation }}
+                    </p>
+
+                    <div class="inline-block bg-white border border-[#d7d0c5] text-sm font-bold text-[#14253d] px-6 py-2.5 rounded-full shadow-sm select-none tracking-wide text-center">
+                        Secciones: <span x-text="pasosCompletados" class="text-blue-600"></span> / <span x-text="totalPasos"></span>
+                    </div>
+                    
+                </div>
+            {{ /if }}
+
             {{ replicator }}
 
-                <!-- TARJETA -->
                 <div 
                     class="p-6 lg:p-8 bg-white border border-[#e5e0d6] rounded-2xl shadow-sm transition-all"
                 >
 
-                    <!-- PREGUNTA -->
                     <h3 class="text-xl lg:text-2xl font-semibold text-[#14253d] mb-6 text-center">
                         {{ question }}
                     </h3>
 
-                    <!-- SELECT PERSONALIZADO -->
                     <div 
                         x-data="{ selected: null, open: false }"
                         class="relative max-w-2xl mx-auto"
                         @click.outside="open = false"
                     >
 
-                        <!-- BOTON -->
                         <button type="button" @click="open = !open" class="w-full px-4 py-3 bg-gray-100 border rounded-lg text-center text-gray-700 font-medium hover:bg-gray-200 transition" > 
                             <span x-text="selected ?? 'Selecciona una opción'"></span> 
                         </button>
 
-                        <!-- OPCIONES -->
                         <div 
                             x-show="open"
                             x-transition
@@ -77,8 +149,6 @@
                                         text-lg
                                         text-[#24364d]
                                         cursor-pointer
-                                        hover:bg-[#eef3fa]
-                                        hover:text-[#14253d]
                                         transition
                                         border-b
                                         border-[#f1ece4]
@@ -113,20 +183,44 @@
 
     {{ /collection:questions }}
 
-    <!-- ERROR -->
     <div 
         x-show="error"
-        class="text-red-600 font-semibold text-center"
+        class="text-red-600 font-semibold text-center mt-4"
+        x-cloak
     >
-        Debes completar todas las preguntas antes de continuar.
+        Debes completar las preguntas antes de continuar.
     </div>
 
-    <!-- BOTON -->
-    <button 
-        type="submit"
-        class="mt-12 px-6 py-3 bg-green-600 text-white rounded text-lg font-semibold block mx-auto hover:bg-green-700 transition"
-    >
-        Guardar
-    </button>
+    <div class="flex justify-center items-center space-x-4 max-w-2xl mx-auto mt-12">
+        
+        <button 
+            type="button"
+            @click="anterior()"
+            x-show="pasoActual > 0"
+            class="px-6 py-3 bg-gray-200 text-gray-700 rounded text-lg font-semibold hover:bg-gray-300 transition"
+            x-cloak
+        >
+            Anterior
+        </button>
+
+        <button 
+            type="button"
+            @click="siguiente()"
+            x-show="pasoActual < totalPasos - 1"
+            class="px-6 py-3 bg-blue-600 text-white rounded text-lg font-semibold hover:bg-blue-700 transition"
+            x-cloak
+        >
+            Siguiente
+        </button>
+
+        <button 
+            type="submit"
+            x-show="pasoActual === totalPasos - 1"
+            class="px-6 py-3 bg-green-600 text-white rounded text-lg font-semibold hover:bg-green-700 transition"
+            x-cloak
+        >
+            Guardar
+        </button>
+    </div>
 
 </form>

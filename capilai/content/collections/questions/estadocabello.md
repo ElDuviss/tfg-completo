@@ -1,10 +1,10 @@
 ---
 id: 65350ffa-470c-432f-943e-dcc861589a4d
 blueprint: question
-title: EstadoCabello
+title: 'Estado del Cabello'
 author: 7b5c4b10-da13-41d2-8a51-65e901258282
 updated_by: 7b5c4b10-da13-41d2-8a51-65e901258282
-updated_at: 1774263715
+updated_at: 1779355894
 replicator:
   -
     id: 4NSXJc07Zooe5FluQ235Y
@@ -117,4 +117,18 @@ replicator:
     type: new_set
     enabled: true
 template: questions/questionaire
+order: 3
+explanation:
+  -
+    type: paragraph
+    content:
+      -
+        type: text
+        text: 'Cada cabello tiene una estructura única determinada por su forma, grosor y densidad natural. Sin embargo, factores como la pérdida de brillo, el afinamiento progresivo o la tendencia a romperse y enredarse con facilidad son señales de alerta que indican un desgaste en la cutícula o una falta de fuerza en la raíz.'
+  -
+    type: paragraph
+    content:
+      -
+        type: text
+        text: 'Analizar las características actuales de tu melena nos permite evaluar su nivel de resistencia, su grado de deshidratación y si existe un proceso activo de miniaturización capilar (cuando el pelo nace cada vez más fino).'
 ---

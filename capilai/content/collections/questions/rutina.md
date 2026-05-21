@@ -1,10 +1,10 @@
 ---
 id: 1ad926f0-8765-4380-97a8-22b4abee467c
 blueprint: question
-title: RutinaCapilar
+title: 'Rutina Capilar'
 author: 7b5c4b10-da13-41d2-8a51-65e901258282
 updated_by: 7b5c4b10-da13-41d2-8a51-65e901258282
-updated_at: 1774263906
+updated_at: 1779356034
 template: questions/questionaire
 replicator:
   -
@@ -154,4 +154,18 @@ replicator:
       A veces, depende del peinado
     type: new_set
     enabled: true
+order: 4
+explanation:
+  -
+    type: paragraph
+    content:
+      -
+        type: text
+        text: 'La forma en que manipulas, lavas y estilizas tu melena en el día a día determina en gran medida su salud a largo plazo. Prácticas comunes como el uso frecuente de herramientas térmicas (planchas o secadores), las duchas con agua muy caliente, la aplicación de tintes o el uso de peinados demasiado tirantes pueden debilitar la fibra, resecar el cuero cabelludo o provocar alopecia por tracción.'
+  -
+    type: paragraph
+    content:
+      -
+        type: text
+        text: 'Conocer tus hábitos de cuidado y los productos que aplicas nos permitirá identificar si tu rutina actual está protegiendo tu cabello o si, por el contrario, está alterando su barrera natural.'
 ---

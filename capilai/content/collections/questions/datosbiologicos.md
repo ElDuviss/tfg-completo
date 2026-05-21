@@ -1,11 +1,11 @@
 ---
 id: d21424d4-8e01-45f0-94bb-4591ac5cbdaf
 blueprint: question
-title: DatosBiologicos
+title: 'Datos Biológicos'
 author: 7b5c4b10-da13-41d2-8a51-65e901258282
 template: questions/questionaire
 updated_by: 7b5c4b10-da13-41d2-8a51-65e901258282
-updated_at: 1774263552
+updated_at: 1779355901
 replicator:
   -
     id: oQDoZiDF4U21Xlvx2dbW-
@@ -74,4 +74,18 @@ replicator:
       No lo sé / No estoy seguro
     type: new_set
     enabled: true
+order: 1
+explanation:
+  -
+    type: paragraph
+    content:
+      -
+        type: text
+        text: 'La salud de tu cabello está íntimamente ligada a tu genética, tu edad y tu equilibrio interno. Factores como el sexo biológico determinan cómo se manifiesta la pérdida de cabello, mientras que los antecedentes familiares y las condiciones hormonales (como problemas de tiroides o desajustes de andrógenos) son clave para identificar la raíz del problema.'
+  -
+    type: paragraph
+    content:
+      -
+        type: text
+        text: 'Al proporcionarnos estos datos esenciales, nos ayudas a construir un mapa biológico preciso para entender el comportamiento de tu ciclo capilar.'
 ---

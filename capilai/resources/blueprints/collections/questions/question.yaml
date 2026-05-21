@@ -13,6 +13,13 @@ tabs:
               validate:
                 - required
           -
+            handle: explanation
+            field:
+              container: assets
+              remove_empty_nodes: false
+              type: bard
+              display: explanation
+          -
             handle: author
             field:
               type: users
@@ -21,11 +28,10 @@ tabs:
               localizable: true
               max_items: 1
           -
-            handle: template
+            handle: order
             field:
-              type: template
-              display: Template
-              localizable: true
+              type: integer
+              display: Order
           -
             handle: replicator
             field:
@@ -50,6 +56,12 @@ tabs:
                           field:
                             type: textarea
                             display: answers
+          -
+            handle: template
+            field:
+              type: template
+              display: Template
+              localizable: true
   sidebar:
     display: Sidebar
     sections:
