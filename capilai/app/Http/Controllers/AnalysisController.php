@@ -20,11 +20,12 @@ class AnalysisController extends Controller
 
         $userId = $request->user_id;
         $slug   = $request->slug;
+
         $cuestionario = Cuestionario::where('user_id', $userId)->firstOrFail();
         $contenidoCuestionario = Storage::get($cuestionario->archivo_json);
         $datosCuestionario = json_decode($contenidoCuestionario, true);
-        $datofoto = Datofoto::where('user_id', $userId)->latest()->first();
 
+        $datofoto = Datofoto::where('user_id', $userId)->latest()->first();
         if (!$datofoto) {
             return response()->json(['error' => 'No existen datos de fotos'], 404);
         }
@@ -34,6 +35,7 @@ class AnalysisController extends Controller
 
         $analysisPrevio = Analysis::where('user_id', $userId)
             ->where('type', $slug)
+            ->latest()
             ->first();
 
         $Generar = true;
@@ -47,14 +49,15 @@ class AnalysisController extends Controller
                 $Generar = false;
                 $textoGenerado = $analysisPrevio->ai_response;
             }
-
         } else {
-
             $analisisCoincidentes = Analysis::where('type', $slug)->get();
 
             foreach ($analisisCoincidentes as $analisis) {
 
-                if ($this->fotosSonIguales(json_decode($analisis->fotos_json, true), $features)) {
+                $cuestionarioCoincide = json_encode($datosCuestionario) === $analisis->cuestionario_json;
+                $fotosCoinciden = $this->fotosSonIguales(json_decode($analisis->fotos_json, true),$features);
+
+                if ($cuestionarioCoincide && $fotosCoinciden) {
 
                     $textoGenerado = $analisis->ai_response;
 
@@ -70,10 +73,10 @@ class AnalysisController extends Controller
                     break;
                 }
             }
+
         }
 
         if ($Generar) {
-
             Http::post('http://capilai-n8n:5678/webhook/enviar-datos', [
                 'slug' => $slug,
             ]);
@@ -94,14 +97,13 @@ class AnalysisController extends Controller
             $archivoTexto = "analysis/Respuestas/texto_user_{$userId}_{$slug}_" . time() . ".txt";
             Storage::put($archivoTexto, $textoGenerado);
 
-            Analysis::updateOrCreate(
-                ['user_id' => $userId, 'type' => $slug],
-                [
-                    'cuestionario_json' => $archivoCuestionario,
-                    'fotos_json'        => $archivoFotos,
-                    'ai_response'       => $archivoTexto,
-                ]
-            );
+            Analysis::create([
+                'user_id' => $userId,
+                'type' => $slug,
+                'cuestionario_json' => $archivoCuestionario,
+                'fotos_json' => $archivoFotos,
+                'ai_response' => $archivoTexto,
+            ]);
         }
 
         return response()->json([
