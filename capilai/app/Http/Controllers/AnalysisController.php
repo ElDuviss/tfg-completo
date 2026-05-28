@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Storage;
 use App\Models\Cuestionario;
 use App\Models\Datofoto;
 use App\Models\Analysis;
+use App\Models\Usuario;
+use App\Models\ChatMessage;
 use Illuminate\Support\Facades\Http;
 
 class AnalysisController extends Controller
@@ -137,4 +139,48 @@ class AnalysisController extends Controller
         $tolerancia = 0.05;
         return abs($densidadA - $densidadB) <= $tolerancia;
     }
+
+    public function destroyAccount(Request $request)
+    {
+        $user = session('usuario_id');
+        if (!$user) {
+            return redirect('/')->with('error', 'No hay ninguna sesión activa.');
+        }
+
+        $carpetas = [
+            'analysis/Chat/Pregunta',
+            'analysis/Chat/Respuesta',
+            'fotos',
+            'cuestionarios',
+            'datofotos'
+        ];
+
+        foreach ($carpetas as $carpeta) {
+
+            if (Storage::disk('local')->exists($carpeta)) {
+
+                $archivos = Storage::disk('local')->files($carpeta);
+
+                foreach ($archivos as $archivo) {
+
+                    if (str_starts_with($archivo, "{$carpeta}/user_{$user}_")) {
+                        Storage::disk('local')->delete($archivo);
+                    }
+                }
+            }
+        }
+
+        Analysis::where('user_id', $user)->update(['user_id' => null]);
+        Datofoto::where('user_id', $user)->delete();
+        Cuestionario::where('user_id', $user)->delete();
+        ChatMessage::where('user_id', $user)->delete();
+        Usuario::where('id', $user)->delete();
+
+        auth()->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect('/')->with('success', 'Cuenta eliminada correctamente.');
+    }
+
 }

@@ -13,13 +13,13 @@ return new class extends Migration
     {
         Schema::create('analysis', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('user_id')->nullable();
             $table->string('type');
             $table->json('cuestionario_json')->nullable();
             $table->json('fotos_json')->nullable();
             $table->longText('ai_response')->nullable();
             $table->timestamps();
-            $table->foreign('user_id')->references('id')->on('usuarios')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('usuarios')->nullOnDelete();
         });
     }
 

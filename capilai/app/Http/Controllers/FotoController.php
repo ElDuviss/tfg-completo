@@ -44,14 +44,13 @@ class FotoController extends Controller
         $nombreArchivo = "fotos/user_{$userId}_{$slugActual}_" . time() . ".png";
         Storage::disk('local')->put($nombreArchivo, base64_decode($imageBase64));
 
-        // Guardar en BD
         Foto::updateOrCreate(
             [
                 'user_id' => $userId,
                 'slug' => $slugActual,
             ],
             [
-                'ruta_archivo' => $nombreArchivo,
+                'base64' => $nombreArchivo,
                 'valida' => true,
             ]
         );

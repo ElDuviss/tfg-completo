@@ -74,6 +74,19 @@
         </a>
     </div>
 
+    <div class="border-t border-gray-100 flex justify-center">
+        <form action="/cuenta/eliminar" method="POST" onsubmit="return confirm('¿Estás seguro de que deseas eliminar tu cuenta por completo? Esta acción no se puede deshacer.');">
+            
+            <input type="hidden" name="_token" value="{{ csrf_token }}">
+            
+            <button 
+                type="submit" 
+                class="px-4 py-4 rounded-xl text-lg font-semibold text-red-600 bg-white border border-red-200 transition-all duration-200 hover:bg-red-50 hover:text-red-700 cursor-pointer shadow-sm">
+                Eliminar cuenta
+            </button>
+        </form>
+    </div>
+
     <div id="chat-container" class="mt-10 max-w-3xl mx-auto bg-white rounded-xl p-8 transition-all duration-300">
         <h2 class="text-2xl font-bold mb-6 text-gray-800 text-center">Chat con tu asistente capilar</h2>
         <div id="chat-box" class="h-[600px] overflow-y-auto bg-white p-6 space-y-4 rounded-lg shadow-inner hidden border border-gray-200"></div>
@@ -85,7 +98,6 @@
 </div>
 
 <script>
-// CONTROL DE LOS BOTONES DE ANÁLISIS
 document.querySelectorAll('.boton-analisis').forEach(boton => {
     boton.addEventListener('click', async function() {
         const slug = this.getAttribute('data-slug');
@@ -122,7 +134,6 @@ document.querySelectorAll('.boton-analisis').forEach(boton => {
     });
 });
 
-// TRUCO PARA EL BOTÓN "ATRÁS": Asegura que al regresar a esta página la carga se oculte
 window.addEventListener('pageshow', function(event) {
     // Si la página se carga desde la caché del historial (botón atrás)
     if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
@@ -133,7 +144,6 @@ window.addEventListener('pageshow', function(event) {
     }
 });
 
-// CONTROL DE TU CHAT (Mantenido intacto)
 document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('chat-box').innerHTML = '';
 });

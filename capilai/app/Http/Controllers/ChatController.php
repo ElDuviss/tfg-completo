@@ -37,10 +37,10 @@ class ChatController extends Controller
 
         $textoRespuesta = $respuesta->body();
 
-        $archivoPregunta = "analysis/Chat/Pregunta/texto_user_{$userId}_chat_" . time() . ".txt";
+        $archivoPregunta = "analysis/Chat/Pregunta/user_{$userId}_chat_" . time() . ".txt";
         Storage::put($archivoPregunta, $pregunta);
 
-        $archivoRespuesta = "analysis/Chat/Respuesta/texto_user_{$userId}_chat_" . time() . ".txt";
+        $archivoRespuesta = "analysis/Chat/Respuesta/user_{$userId}_chat_" . time() . ".txt";
         Storage::put($archivoRespuesta, $textoRespuesta);
 
         ChatMessage::updateOrCreate(
@@ -56,8 +56,8 @@ class ChatController extends Controller
         $archivoPreguntaActual = $chat->question;
         $archivoRespuestaActual = $chat->answer;
 
-        $prefijoPregunta = "analysis/Chat/Pregunta/texto_user_{$userId}_";
-        $prefijoRespuesta = "analysis/Chat/Respuesta/texto_user_{$userId}_";
+        $prefijoPregunta = "analysis/Chat/Pregunta/user_{$userId}_";
+        $prefijoRespuesta = "analysis/Chat/Respuesta/user_{$userId}_";
 
         $preguntas = Storage::files('analysis/Chat/Pregunta');
 

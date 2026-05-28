@@ -35,3 +35,5 @@ Route::get('/fotos-validadas/{user_id}', function($user_id) {
 });
 Route::post('/chat/enviar', [ChatController::class, 'enviar']);
 Route::post('/datofotos/guardar', [DatofotoController::class, 'guardar']);
+
+Route::post('/cuenta/eliminar', [AnalysisController::class, 'destroyAccount']);

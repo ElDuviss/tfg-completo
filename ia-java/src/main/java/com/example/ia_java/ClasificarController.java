@@ -2,7 +2,6 @@ package com.example.ia_java;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -94,7 +93,7 @@ public class ClasificarController {
         System.out.println("PITCH = " + pitch);
         System.out.println("ROLL  = " + roll);
 
-        if (pitch <= -15) {
+        if (pitch <= -25) {
             System.out.println("→ CLASIFICADO COMO: foto-superior");
             return "foto-superior";
         }
