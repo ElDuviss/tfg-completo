@@ -2,3 +2,8 @@
 @plugin "@tailwindcss/typography";
 @source "../views";
 @source "../../content";
+
+[data-aos] {
+  transform: none !important;
+  will-change: auto !important;
+}
