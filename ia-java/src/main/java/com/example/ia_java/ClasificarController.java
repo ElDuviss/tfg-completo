@@ -87,23 +87,6 @@ public class ClasificarController {
 
         String orientacion = EyeOrientationDetector.detect(faceMat);
 
-        if ("sin-ojos".equals(orientacion)) {
-
-            System.out.println("No se detectaron ojos → usando HeadPoseEstimator");
-
-            HeadPose pose = HeadPoseEstimator.estimate(mat, faceRect);
-
-            double pitch = pose.getPitch();
-
-            System.out.println("PITCH = " + pitch);
-
-            double pitchThreshold = -17.0;
-
-            if (pitch < pitchThreshold) {
-                orientacion = "foto-superior";
-            }
-        }
-
         System.out.println("ORIENTACIÓN DETECTADA = " + orientacion);
 
         return orientacion;

@@ -45,7 +45,7 @@ public class EyeOrientationDetector {
             eyes = eyesMat.toArray();
         }
 
-        if (eyes.length == 0) return "sin-ojos";
+        if (eyes.length == 0) return "foto-superior";
 
         if (eyes.length == 1) {
             Rect e = eyes[0];
