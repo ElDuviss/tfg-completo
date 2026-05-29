@@ -4,15 +4,20 @@
         <img src="{{ url }}" alt="{{ alt ?? 'Logo' }}" class="mx-auto">
     {{ /logo }}
 
-    <p class="text-[40px] md:text-[52px] font-bold mb-10 text-gray-800 leading-tight">{{ logotext }}</p>
+    <p class="text-[40px] md:text-[52px] font-bold mb-10 text-gray-800 leading-tight block">
+        {{ logotext }}
+    </p>
 
     {{ partial:partial/registerstart }}
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8 w-full mt-8">
 
         {{ replicator_field }}
-            <div class="bg-white shadow-lg rounded-xl p-6 flex flex-col text-center border border-gray-100 h-full 
-            md:max-w-[360px] lg:max-w-[450px] w-full mx-auto">
+            <div 
+                class="bg-white shadow-lg rounded-xl p-6 flex flex-col text-center border border-gray-100 h-full 
+                md:max-w-[360px] lg:max-w-[450px] w-full mx-auto"
+                data-aos="fade"
+            >
 
                 {{ if title }}
                     <h2 class="text-xl font-semibold mb-3 text-gray-800">
