@@ -2,6 +2,8 @@ package com.example.ia_java;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.opencv.core.Mat;
+import org.opencv.core.Rect;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,7 +18,7 @@ public class ClasificarController {
 
         try {
             System.out.println("\n\n==============================");
-            System.out.println("📥 PETICIÓN RECIBIDA");
+            System.out.println("PETICIÓN RECIBIDA");
             System.out.println("==============================");
 
             String imagenBase64 = (String) body.get("imagen");
@@ -28,7 +30,6 @@ public class ClasificarController {
                 throw new Exception("No se recibió el campo 'imagen'");
             }
 
-            // Detectar clase real
             String claseDetectada = detectarClase(imagenBase64);
 
             System.out.println("Clase detectada por IA = " + claseDetectada);
@@ -60,7 +61,6 @@ public class ClasificarController {
         return resp;
     }
 
-
     private String detectarClase(String base64) throws Exception {
 
         System.out.println("\n--- DECODIFICANDO IMAGEN ---");
@@ -70,46 +70,43 @@ public class ClasificarController {
 
         System.out.println("Imagen convertida a Mat: " + mat.size());
 
-        // Detectar cara
         var faceRect = FaceDetector.detectFace(mat);
 
         if (faceRect == null) {
-            System.out.println("❌ NO SE DETECTÓ ROSTRO");
+            System.out.println("NO SE DETECTÓ ROSTRO");
             return "sin-rostro";
         }
 
-        System.out.println("✔ Rostro detectado en: x=" + faceRect.x + " y=" + faceRect.y +
+        System.out.println("Rostro detectado en: x=" + faceRect.x + " y=" + faceRect.y +
                 " w=" + faceRect.width + " h=" + faceRect.height);
 
-        System.out.println("--- ESTIMANDO POSE ---");
+        System.out.println("--- ESTIMANDO ORIENTACIÓN ---");
 
-        HeadPose pose = HeadPoseEstimator.estimate(mat, faceRect);
+        Rect roi = new Rect(faceRect.x, faceRect.y, faceRect.width, faceRect.height);
+        Mat faceMat = new Mat(mat, roi);
 
-        double yaw = pose.getYaw();
-        double pitch = pose.getPitch();
-        double roll = pose.getRoll();
+        String orientacion = EyeOrientationDetector.detect(faceMat);
 
-        System.out.println("YAW   = " + yaw);
-        System.out.println("PITCH = " + pitch);
-        System.out.println("ROLL  = " + roll);
+        if ("sin-ojos".equals(orientacion)) {
 
-        if (pitch <= -25) {
-            System.out.println("→ CLASIFICADO COMO: foto-superior");
-            return "foto-superior";
+            System.out.println("No se detectaron ojos → usando HeadPoseEstimator");
+
+            HeadPose pose = HeadPoseEstimator.estimate(mat, faceRect);
+
+            double pitch = pose.getPitch();
+
+            System.out.println("PITCH = " + pitch);
+
+            double pitchThreshold = -17.0;
+
+            if (pitch < pitchThreshold) {
+                orientacion = "foto-superior";
+            }
         }
 
-        if (yaw <= - 15) {
-            System.out.println("→ CLASIFICADO COMO: foto-lateral-derecha");
-            return "foto-lateral-derecha";
-        }
+        System.out.println("ORIENTACIÓN DETECTADA = " + orientacion);
 
-        if (yaw > 0) {
-            System.out.println("→ CLASIFICADO COMO: foto-lateral-izquierda");
-            return "foto-lateral-izquierda";
-        }
-
-        System.out.println("→ CLASIFICADO COMO: foto-frontal");
-        return "foto-frontal";
+        return orientacion;
     }
 
 }

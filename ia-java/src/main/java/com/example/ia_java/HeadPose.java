@@ -1,7 +1,6 @@
 package com.example.ia_java;
 
 public class HeadPose {
-
     private final double yaw;
     private final double pitch;
     private final double roll;

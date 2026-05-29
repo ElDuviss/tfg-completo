@@ -23,11 +23,11 @@ class DatofotoController extends Controller
 
         foreach ($fotos as $foto) {
 
-            if (!Storage::disk('local')->exists($foto->ruta_archivo)) {
+            if (!Storage::disk('local')->exists($foto->base64)) {
                 continue;
             }
 
-            $contenido = Storage::disk('local')->get($foto->ruta_archivo);
+            $contenido = Storage::disk('local')->get($foto->base64);
             $base64 = base64_encode($contenido);
 
             $DatosImagenes = Http::post('http://capilai-n8n:5678/webhook/enviar-fotos', [

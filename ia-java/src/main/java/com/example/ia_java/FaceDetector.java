@@ -18,7 +18,7 @@ public class FaceDetector {
 
             net = Dnn.readNetFromCaffe(proto, model);
 
-            System.out.println("✔ Detector de rostro DNN cargado correctamente");
+            System.out.println("Detector de rostro DNN cargado correctamente");
 
         } catch (Exception e) {
             e.printStackTrace();
