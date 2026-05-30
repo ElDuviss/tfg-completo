@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-slate-50 text-slate-800 antialiased">
+<div class="min-h-screen text-slate-800 antialiased">
   <div class="max-w-4xl mx-auto px-6 py-12">
 
     <div class="text-center max-w-2xl mx-auto mb-10">
@@ -17,7 +17,7 @@
     >
       <div class="bg-white shadow-md overflow-hidden">
         
-        <div class="px-8 py-6 bg-white border-b border-slate-100 text-center">
+        <div class="px-8 py-6 bg-white text-center">
           <h2 class="text-base font-bold text-slate-800 uppercase tracking-wider">Captura o sube tu foto</h2>
           <p class="text-xs text-slate-400 mt-1.5">Asegúrate de tener buena iluminación y encuadre centrado.</p>
         </div>
@@ -45,12 +45,12 @@
                 <h3 class="text-sm font-semibold text-slate-700">Vista previa</h3>
               </div>
 
-              <div class="bg-white p-4 min-h-[148px] md:min-h-[200px] flex flex-col justify-center aspect-video">
+              <div class="relative aspect-video">
                 <div
                   x-show="preview"
                   class="overflow-hidden bg-white h-full flex items-center justify-center"
                 >
-                  <img :src="preview" class="w-full max-h-[180px] object-contain">
+                  <img :src="preview" class="w-full object-contain">
                 </div>
 
                 <div
@@ -72,7 +72,7 @@
               Tomar foto
             </button>
 
-            <label class="w-full sm:w-1/2 inline-flex items-center justify-center px-4 py-3 text-base font-bold rounded-xl bg-white text-slate-700 border border-slate-200 shadow-sm hover:bg-slate-50 hover:text-slate-900 cursor-pointer focus:outline-none focus:ring-2 focus:ring-slate-200 focus:ring-offset-2 transition-all text-center">
+            <label class="w-full sm:w-1/2 inline-flex items-center justify-center px-4 py-3 text-base font-bold rounded-xl bg-white text-slate-700 shadow-sm hover:bg-slate-50 hover:text-slate-900 cursor-pointer focus:outline-none focus:ring-2 focus:ring-slate-200 focus:ring-offset-2 transition-all text-center">
               Subir foto
               <input
                 type="file"
@@ -88,7 +88,7 @@
             method="POST"
             action="/subir-foto"
             enctype="multipart/form-data"
-            class="block pt-6 border-t border-slate-100"
+            class="block pt-6"
           >
             {{ csrf_field }}
 
@@ -110,7 +110,7 @@
           <div class="max-w-md mx-auto">
             <div
               x-show="fotoError"
-              class="mt-4 text-xs font-semibold text-red-600 bg-red-50 border border-red-100 rounded-xl px-4 py-2.5 text-center"
+              class="mt-4 text-xs font-semibold text-red-600 bg-red-50 px-4 py-2.5 text-center"
             >
               Debes tomar o subir una foto antes de continuar.
             </div>
@@ -118,7 +118,7 @@
 
         </div>
 
-        <div class="mt-4 px-8 py-4 bg-slate-50 border-t border-slate-100 text-center">
+        <div class="mt-4 px-8 py-4 bg-slate-50 text-center">
           <p class="text-xs text-slate-400 font-medium">
             Comprueba que el rostro esté centrado y bien iluminado antes de guardar.
           </p>
