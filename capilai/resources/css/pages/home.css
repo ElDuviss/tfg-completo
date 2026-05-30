@@ -1,0 +1,55 @@
+h1,h2,h3,a,button {
+  font-family: "Playwrite GB J", cursive;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
+span {
+    font-family: "Raleway", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 300;
+    font-style: normal;
+    color: #000000;
+}
+
+.dots::after {
+  content: '';
+  display: inline-block;
+  animation: dots 1.5s steps(3, end) infinite;
+}
+
+@keyframes dots {
+  0%   { content: ''; }
+  33%  { content: '.'; }
+  66%  { content: '..'; }
+  100% { content: '...'; }
+}
+
+.chunk-analysis p {
+  margin-bottom: 1.25rem;
+}
+
+.chunk-analysis strong {
+  color: #1e293b; /* slate-800 */
+  font-weight: 600;
+}
+
+.chunk-analysis ul {
+  background-color: #f8fafc; /* slate-50 */
+  border-radius: 0.75rem;
+  padding: 1.25rem 1.25rem 1.25rem 2.25rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid #f1f5f9;
+  list-style-type: disc;
+
+}
+
+.chunk-analysis li {
+  margin-bottom: 0.5rem;
+  color: #334155; /* slate-700 */
+}
+
+.chunk-analysis li::marker {
+  color: #2563eb; /* blue-600 */
+}

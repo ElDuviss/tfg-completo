@@ -4,9 +4,9 @@
         <img src="{{ url }}" alt="{{ alt ?? 'Logo' }}" class="mx-auto">
     {{ /logo }}
 
-    <p class="text-[40px] md:text-[52px] font-bold mb-10 text-gray-800 leading-tight block">
+    <h1 class="text-[40px] md:text-[52px] mb-10 block">
         {{ logotext }}
-    </p>
+    </h1>
 
     {{ partial:partial/registerstart }}
 
@@ -20,20 +20,20 @@
             >
 
                 {{ if title }}
-                    <h2 class="text-xl font-semibold mb-3 text-gray-800">
+                    <h2>
                         {{ title }}
                     </h2>
                 {{ /if }}
 
                 {{ if text }}
-                    <div class="text-gray-700 leading-relaxed mb-4 flex flex-col gap-1">
+                    <div class="mb-4 flex flex-col gap-1">
                         {{ text | explode:"\n" }}
                             <span class="block">{{ value }}</span>
                         {{ /text }}
                     </div>
                 {{ /if }}
 
-                <a href="/features/{{ adress }}" class="text-gray-800 font-medium hover:underline">
+                <a href="/features/{{ adress }}" class="hover:underline">
                     Más información
                 </a>
 

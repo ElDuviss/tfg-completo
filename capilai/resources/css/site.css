@@ -1,7 +1,11 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
-@source "../views";
-@source "../../content";
+
+@source "../views/**/*.antlers.html";
+@source "../views/**/*.html";
+@source "../../content/**/*";
+
+@import "./pages/home.css"; /* ← aquí sí */
 
 [data-aos] {
   transform: none !important;

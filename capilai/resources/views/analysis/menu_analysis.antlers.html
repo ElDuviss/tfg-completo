@@ -12,25 +12,9 @@
     </p>
 </div>
 
-<style>
-    .dots::after {
-        content: '';
-        display: inline-block;
-        animation: dots 1.5s steps(3, end) infinite;
-    }
-
-    @keyframes dots {
-        0%   { content: ''; }
-        33%  { content: '.'; }
-        66%  { content: '..'; }
-        100% { content: '...'; }
-    }
-</style>
-
-
 <div class="max-w-3xl mx-auto py-10 space-y-8">
 
-    <h1 class="text-3xl font-bold text-center">Resultados del análisis</h1>
+    <h1 class="text-center">Resultados del análisis</h1>
 
     <p class="text-center text-gray-700 px-4">
         Ya hemos obtenido todos los datos necesarios para analizar tu cabello. 
@@ -51,7 +35,7 @@
                 </div>
 
                 <div class="flex-1 text-left">
-                    <span class="text-lg md:text-xl lg:text-2xl xl:text-3xl font-bold leading-tight ">
+                    <span class="text-lg md:text-xl lg:text-2xl xl:text-3xl leading-tight ">
                         {{ parttitle }}
                     </span>
                 </div>
@@ -67,12 +51,12 @@
             Si has sufrido cambios recientes en tu cabello y ya no está igual que antes, 
             puedes volver a realizar el cuestionario para obtener un análisis actualizado y más preciso.
         </p>
-        <a href="/questionaire" class="px-4 py-4 rounded-xl text-lg font-semibold text-black bg-white border border-gray-300 transition-all duration-200 hover:bg-gray-100">
+        <a href="/questionaire" class="px-4 py-4 rounded-xl text-lg bg-white border border-gray-300 transition-all duration-200 hover:bg-gray-100">
             Rehacer cuestionario
         </a>
     </div>
 
-    <div class="border-t border-gray-100 flex justify-center">
+    <div class="flex justify-center">
         <form action="/cuenta/eliminar" method="POST" onsubmit="return confirm('¿Estás seguro de que deseas eliminar tu cuenta por completo? Esta acción no se puede deshacer.');">
             
             <input type="hidden" name="_token" value="{{ csrf_token }}">
@@ -86,7 +70,7 @@
     </div>
 
     <div id="chat-container" class="mt-10 max-w-3xl mx-auto bg-white rounded-xl p-8 transition-all duration-300">
-        <h2 class="text-2xl font-bold mb-6 text-gray-800 text-center">Chat con tu asistente capilar</h2>
+        <h2 class="text-2xl mb-6 text-center">Chat con tu asistente capilar</h2>
         <div id="chat-box" class="h-[600px] overflow-y-auto bg-white p-6 space-y-4 rounded-lg shadow-inner hidden border border-gray-200"></div>
         <div class="flex mt-6 justify-center">
             <input id="chat-input" type="text" placeholder="Escribe tu mensaje y pulsa Enter..." class="w-[90%] border border-gray-300 rounded-full px-6 py-3 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm">
