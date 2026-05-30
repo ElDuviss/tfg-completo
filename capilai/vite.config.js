@@ -10,14 +10,18 @@ export default defineConfig({
                 'resources/css/pages/home.css',
                 'resources/js/site.js',
             ],
-            refresh: true,
+            refresh: false, // ← DESACTIVA EL AUTO-REFRESH QUE ROMPE LOS REDIRECTS
         }),
         tailwindcss(),
     ],
     server: {
+        hmr: {
+            overlay: false, // ← EVITA FULL RELOADS
+        },
         watch: {
+            usePolling: true, // ← MÁS ESTABLE EN WSL
+            interval: 100,
             ignored: ['**/storage/framework/views/**'],
         },
     },
 });
-
