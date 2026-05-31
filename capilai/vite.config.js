@@ -10,18 +10,27 @@ export default defineConfig({
                 'resources/css/pages/home.css',
                 'resources/js/site.js',
             ],
-            refresh: false,
+            refresh: false, // ← evita recargas por cambios en Blade/Antlers
         }),
         tailwindcss(),
     ],
+
     server: {
         hmr: {
-            overlay: false,
+            overlay: false, // ← evita full reloads por errores
         },
+
         watch: {
-            usePolling: true,
-            interval: 100,
-            ignored: ['**/storage/framework/views/**'],
+            usePolling: true,   // ← watcher estable
+            interval: 200,
+
+            ignored: [
+                '**/storage/framework/views/**',
+                '**/content/**',
+                '**/resources/views/**',
+                '**/resources/blueprints/**',
+                '**/resources/fieldsets/**',
+            ],
         },
     },
 });
