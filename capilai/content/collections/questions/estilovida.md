@@ -4,7 +4,7 @@ blueprint: question
 title: 'Estilo de Vida'
 author: 7b5c4b10-da13-41d2-8a51-65e901258282
 updated_by: 7b5c4b10-da13-41d2-8a51-65e901258282
-updated_at: 1779355910
+updated_at: 1780389257
 template: questions/questionaire
 replicator:
   -
@@ -57,54 +57,6 @@ replicator:
       Rica en carbohidratos
       Pobre en nutrientes
       Irregular (como a deshoras o sin rutina)
-    type: new_set
-    enabled: true
-  -
-    id: Egdj-MwCaLdurpw_QE8lV
-    question:
-      -
-        type: paragraph
-        content:
-          -
-            type: text
-            text: 'Consumo de alcohol'
-    answers: |-
-      No consumo
-      Consumo ocasional
-      Consumo moderado
-      Consumo frecuente
-    type: new_set
-    enabled: true
-  -
-    id: omYzNx96s6oFEVP3lKWF5
-    question:
-      -
-        type: paragraph
-        content:
-          -
-            type: text
-            text: 'Consumo de tabaco'
-    answers: |-
-      No fumo
-      Fumo ocasionalmente
-      Fumo a diario
-      Fumo en grandes cantidades
-    type: new_set
-    enabled: true
-  -
-    id: dAnrO2pfMGV1IKpMsl0pW
-    question:
-      -
-        type: paragraph
-        content:
-          -
-            type: text
-            text: 'Consumo de café / té'
-    answers: |-
-      No consumo
-      1 taza al día
-      2–3 tazas al día
-      Más de 3 tazas al día
     type: new_set
     enabled: true
   -

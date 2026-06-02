@@ -4,7 +4,7 @@ blueprint: question
 title: 'Síntomas del Cabello'
 author: 7b5c4b10-da13-41d2-8a51-65e901258282
 updated_by: 7b5c4b10-da13-41d2-8a51-65e901258282
-updated_at: 1779356105
+updated_at: 1780389301
 template: questions/questionaire
 replicator:
   -
@@ -39,22 +39,6 @@ replicator:
       Sí, placas o escamas grandes
       No
       No estoy seguro
-    type: new_set
-    enabled: true
-  -
-    id: JpocxgQY6zXqOfH17I60F
-    question:
-      -
-        type: paragraph
-        content:
-          -
-            type: text
-            text: '¿Tienes enrojecimiento o irritación?'
-    answers: |-
-      Sí, frecuente
-      Sí, pero solo a veces
-      No
-      No lo sé
     type: new_set
     enabled: true
   -

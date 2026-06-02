@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('cuestionarios', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id'); // ID del usuario
-            $table->string('archivo_json');        // Ruta del archivo JSON
+            $table->unsignedBigInteger('user_id'); 
+            $table->string('archivo_json');
             $table->timestamps();
         });
     }

@@ -1,17 +1,54 @@
-<div class="max-w-3xl mx-auto bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-100 my-8">
+<div 
+    x-data="{
+        index: 0,
+        analyses: [],
+        init() {
+            let template = document.getElementById('all-analyses');
+            let container = document.createElement('div');
+            container.innerHTML = template.innerHTML.trim();
+            this.analyses = Array.from(container.children);
+        },
+        prev() { if (this.index > 0) this.index-- },
+        next() { if (this.index < this.analyses.length - 1) this.index++ }
+    }"
+    class="max-w-3xl mx-auto bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-100 my-8"
+>
     
     <div class="bg-gradient-to-r from-slate-50 to-blue-50/50 p-8 text-center border-b border-gray-100">
         <h2 class="text-3xl mt-1">
             {{ parttitle }}
         </h2>
+
+        <div class="flex justify-between items-center mt-6">
+            <button 
+                @click="prev()" 
+                :class="index === 0 ? 'opacity-40 cursor-not-allowed' : ''"
+                class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-semibold text-gray-700"
+            >
+                Anterior
+            </button>
+
+            <span class="text-gray-600 text-sm" x-text="analyses.length ? analyses[index].dataset.fecha : ''"></span>
+
+            <button 
+                @click="next()" 
+                :class="index === analyses.length - 1 ? 'opacity-40 cursor-not-allowed' : ''"
+                class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-semibold text-gray-700"
+            >
+                Siguiente
+            </button>
+        </div>
     </div>
 
     <div class="p-8 space-y-6">
-        
-        <div class="prose prose-blue max-w-none text-gray-700 leading-relaxed text-base text-justify chunk-analysis">
-            {{ hair_analysis }}
-        </div>
-
+        <div 
+            class="prose prose-blue max-w-none text-gray-700 leading-relaxed text-base text-justify chunk-analysis"
+            x-html="analyses.length ? analyses[index].innerHTML : ''"
+        ></div>
     </div>
 
 </div>
+
+<template id="all-analyses">
+    {{ hair_analysis }}
+</template>
