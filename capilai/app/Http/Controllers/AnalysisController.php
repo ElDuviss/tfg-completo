@@ -28,10 +28,6 @@ class AnalysisController extends Controller
         $datosCuestionario = json_decode($contenidoCuestionario, true);
 
         $datofoto = Datofoto::where('user_id', $userId)->latest()->first();
-        if (!$datofoto) {
-            return response()->json(['error' => 'No existen datos de fotos'], 404);
-        }
-
         $contenidoFotos = Storage::get($datofoto->archivo_json);
         $features = json_decode($contenidoFotos, true);
 
@@ -44,41 +40,52 @@ class AnalysisController extends Controller
         $textoGenerado = null;
 
         if ($analysisPrevio) {
-            $cuestionarioIgual = $analysisPrevio->cuestionario_json == json_encode($datosCuestionario);
-            $fotosIguales = $analysisPrevio->fotos_json == json_encode($features);
+
+            $prevCuestionario = json_decode(Storage::get($analysisPrevio->cuestionario_json), true);
+            $prevFotos = json_decode(Storage::get($analysisPrevio->fotos_json), true);
+
+            $cuestionarioIgual = $prevCuestionario == $datosCuestionario;
+            $fotosIguales = $prevFotos == $features;
 
             if ($cuestionarioIgual && $fotosIguales) {
+
+                $textoGenerado = Storage::get($analysisPrevio->ai_response);
                 $Generar = false;
-                $textoGenerado = $analysisPrevio->ai_response;
             }
-        } else {
+        }
+
+        if ($Generar && !$analysisPrevio) {
+
             $analisisCoincidentes = Analysis::where('type', $slug)->get();
 
             foreach ($analisisCoincidentes as $analisis) {
 
-                $cuestionarioCoincide = json_encode($datosCuestionario) === $analisis->cuestionario_json;
-                $fotosCoinciden = $this->fotosSonIguales(json_decode($analisis->fotos_json, true),$features);
+                $prevCuestionario = json_decode(Storage::get($analisis->cuestionario_json), true);
+                $prevFotos = json_decode(Storage::get($analisis->fotos_json), true);
+
+                $cuestionarioCoincide = $prevCuestionario == $datosCuestionario;
+                $fotosCoinciden = $prevFotos == $features;
 
                 if ($cuestionarioCoincide && $fotosCoinciden) {
 
-                    $textoGenerado = $analisis->ai_response;
+                    $textoGenerado = Storage::get($analisis->ai_response);
 
                     Analysis::create([
                         'user_id' => $userId,
                         'type' => $slug,
-                        'cuestionario_json' => json_encode($datosCuestionario, JSON_PRETTY_PRINT),
-                        'fotos_json' => json_encode($features, JSON_PRETTY_PRINT),
-                        'ai_response' => $textoGenerado,
+                        'cuestionario_json' => $analisis->cuestionario_json,
+                        'fotos_json' => $analisis->fotos_json,
+                        'ai_response' => $analisis->ai_response,
                     ]);
 
                     $Generar = false;
                     break;
                 }
             }
-
         }
 
         if ($Generar) {
+
             Http::post('http://capilai-n8n:5678/webhook/enviar-datos', [
                 'slug' => $slug,
             ]);
@@ -90,10 +97,10 @@ class AnalysisController extends Controller
             $respuesta = Http::post('http://capilai-n8n:5678/webhook/enviar-cuestionario', $datosCuestionario);
             $textoGenerado = $respuesta->body();
 
-            $archivoCuestionario = "analysis/Cuestionarios/cuestionario_user_{$userId}.json";
+            $archivoCuestionario = "analysis/Cuestionarios/cuestionario_user_{$userId}_" . time() . ".json";
             Storage::put($archivoCuestionario, json_encode($datosCuestionario, JSON_PRETTY_PRINT));
 
-            $archivoFotos = "analysis/AnalisisFoto/fotos_user_{$userId}.json";
+            $archivoFotos = "analysis/AnalisisFoto/fotos_user_{$userId}_" . time() . ".json";
             Storage::put($archivoFotos, json_encode($features, JSON_PRETTY_PRINT));
 
             $archivoTexto = "analysis/Respuestas/texto_user_{$userId}_{$slug}_" . time() . ".txt";
