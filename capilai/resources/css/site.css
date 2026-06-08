@@ -11,3 +11,9 @@
   transform: none !important;
   will-change: auto !important;
 }
+
+canvas {
+  width: 100% !important;
+  height: auto !important;
+  max-height: 400px;
+}

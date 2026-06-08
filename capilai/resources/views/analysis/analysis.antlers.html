@@ -1,58 +1,152 @@
 <div 
-    x-data="{
-        index: 0,
-        analyses: [],
-        init() {
-            let template = document.getElementById('all-analyses');
-            let container = document.createElement('div');
-            container.innerHTML = template.innerHTML.trim();
-            this.analyses = Array.from(container.children);
-        },
-        prev() { if (this.index > 0) this.index-- },
-        next() { if (this.index < this.analyses.length - 1) this.index++ }
-    }"
+    x-data="analysisViewer()"
+    x-init="init()"
     class="max-w-3xl mx-auto bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-100 my-8"
 >
-    
     <div class="bg-gradient-to-r from-slate-50 to-blue-50/50 p-8 text-center border-b border-gray-100">
-        <h2 class="text-3xl mt-1">
-            {{ parttitle }}
-        </h2>
+        <h2 class="text-3xl mt-1">{{ parttitle }}</h2>
 
         <div class="flex justify-between items-center mt-6">
-            <button 
-                @click="prev()" 
+            <button @click="prev()" 
                 :class="index === 0 ? 'opacity-40 cursor-not-allowed' : ''"
-                class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-semibold text-gray-700"
-            >
+                class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-semibold text-gray-700">
                 Anterior
             </button>
 
-            <span class="text-gray-600 text-sm" x-text="analyses.length ? analyses[index].dataset.fecha : ''"></span>
+            <span class="text-gray-600 text-sm"
+                  x-text="analyses.length ? analyses[index].dataset.fecha : ''"></span>
 
-            <button 
-                @click="next()" 
+            <button @click="next()" 
                 :class="index === analyses.length - 1 ? 'opacity-40 cursor-not-allowed' : ''"
-                class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-semibold text-gray-700"
-            >
+                class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-semibold text-gray-700">
                 Siguiente
             </button>
         </div>
     </div>
 
+    <!-- TEXTO -->
     <div class="p-8 space-y-6">
-        <div 
-            class="prose prose-blue max-w-none text-gray-700 leading-relaxed text-base text-justify chunk-analysis"
-            x-html="analyses.length ? analyses[index].innerHTML : ''"
-        ></div>
+        <div class="prose prose-blue max-w-none text-gray-700 leading-relaxed text-base text-justify"
+             x-html="analyses.length ? analyses[index].innerHTML : ''"></div>
     </div>
 
+    <!-- GRÁFICO RADAR -->
+    <div class="p-8 space-y-6">
+        <canvas id="hairChart"></canvas>
+    </div>
 </div>
 
 <template id="all-analyses">
     {{ hair_analysis }}
 </template>
 
-<template id="all-analyses">
+<div id="all-photos" style="display:none;">
     {{ hair_photos }}
-</template>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+function analysisViewer() {
+    return {
+        index: 0,
+        analyses: [],
+        photos: [],
+        chart: null,
+
+        init() {
+            let template = document.getElementById('all-analyses');
+            let container = document.createElement('div');
+            container.innerHTML = template.innerHTML.trim();
+            this.analyses = Array.from(container.children);
+
+            this.photos = Array.from(document.querySelectorAll('#all-photos > *'));
+
+            this.renderChart();
+        },
+
+        prev() {
+            if (this.index > 0) {
+                this.index--;
+                this.renderChart();
+            }
+        },
+
+        next() {
+            if (this.index < this.analyses.length - 1) {
+                this.index++;
+                this.renderChart();
+            }
+        },
+
+        // -------------------------
+        // GRÁFICO RADAR RESPONSIVE
+        // -------------------------
+        renderChart() {
+            let jsonText = this.photos[this.index]?.innerText.trim();
+            if (!jsonText) return;
+
+            let data = JSON.parse(jsonText);
+
+            const entradasValue =
+                data.entradas === 'marcadas' ? 3 :
+                data.entradas === 'leves' ? 2 : 1;
+
+            if (this.chart) this.chart.destroy();
+
+            const ctx = document.getElementById('hairChart').getContext('2d');
+
+            this.chart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: [
+                        'Miniaturización',
+                        'Grasa',
+                        'Irritación',
+                        'Coronilla',
+                        'Entradas'
+                    ],
+                    datasets: [{
+                        label: 'Análisis capilar',
+                        data: [
+                            data.miniaturizacion === 'alta' ? 3 : data.miniaturizacion === 'media' ? 2 : 1,
+                            data.grasa === 'alta' ? 3 : data.grasa === 'media' ? 2 : 1,
+                            data.irritacion === 'alta' ? 3 : data.irritacion === 'media' ? 2 : 1,
+                            data.coronilla === 'alta' ? 3 : data.coronilla === 'media' ? 2 : 1,
+                            entradasValue
+                        ],
+                        backgroundColor: 'rgba(59,130,246,0.2)',
+                        borderColor: 'rgba(59,130,246,1)',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            min: 0,
+                            max: 3,
+                            ticks: {
+                                stepSize: 1,
+                                callback: function(value) {
+                                    if (value === 1) return 'baja';
+                                    if (value === 2) return 'media';
+                                    if (value === 3) return 'alta';
+                                    return '';
+                                }
+                            },
+                            grid: { color: '#ccc' },
+                            pointLabels: { font: { size: 14 } }
+                        }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            // 🔥 IMPORTANTE: evita que se quede pequeño al rotar o cambiar tamaño
+            this.$nextTick(() => this.chart.resize());
+        }
+    }
+}
+</script>
