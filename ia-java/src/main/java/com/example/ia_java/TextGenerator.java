@@ -2,7 +2,9 @@ package com.example.ia_java;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.http.*;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.Map;
 
 public class TextGenerator {
@@ -33,11 +35,15 @@ public class TextGenerator {
         %s
 
         Instrucciones:
-        - Analiza únicamente el apartado indicado por el slug.
+        - Analiza únicamente el apartado indicado por el slug y da la recomendaciones necesarias.
+        - En la respuesta únicamente devuelve las recomendaciones.
+        - No quiero que me hagas una lista con las cosas del cuestionario ni de los datos de las imagenes.
+        - Únicamente debes escribir las recomendaciones, nada más.
         - No hables de otros temas.
         - Usa los datos de imágenes y cuestionario para justificar el análisis.
         - Da recomendaciones específicas y prácticas.
         - Escribe en tono humano, profesional y fácil de entender.
+        - 
         """.formatted(titulo, datosImagenes, cuestionario);
     }
 
