@@ -37,3 +37,5 @@ Route::post('/chat/enviar', [ChatController::class, 'enviar']);
 Route::post('/datofotos/guardar', [DatofotoController::class, 'guardar']);
 
 Route::post('/cuenta/eliminar', [AnalysisController::class, 'destroyAccount']);
+
+Route::get('/analysis/evolution', function () { return view('analysis/evolution'); });
