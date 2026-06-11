@@ -9,6 +9,7 @@ use App\Http\Controllers\FotoController;
 use App\Http\Controllers\AnalysisController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\DatofotoController;
+use App\Http\Controllers\EvolutionController;
 
 Route::post('/usuarios', [UsuarioController::class, 'store'])->name('usuarios.store');
 Route::get('/usuarios', [UsuarioController::class, 'index'])->name('usuarios.index');
@@ -34,8 +35,9 @@ Route::get('/fotos-validadas/{user_id}', function($user_id) {
                            ->get();
 });
 Route::post('/chat/enviar', [ChatController::class, 'enviar']);
+
 Route::post('/datofotos/guardar', [DatofotoController::class, 'guardar']);
 
 Route::post('/cuenta/eliminar', [AnalysisController::class, 'destroyAccount']);
 
-Route::get('/analysis/evolution', function () { return view('analysis/evolution'); });
+Route::statamic('/analysis/evolution', '/analysis/evolution');

@@ -1,0 +1,204 @@
+<div class="w-full flex flex-col items-center text-center px-4">
+
+    <h1 class="text-3xl font-bold mb-4">Mi evolución</h1>
+
+    <p class="text-gray-700 max-w-2xl mb-8">
+        Este gráfico muestra cómo han cambiado tus parámetros capilares a lo largo del tiempo.
+        Cada línea representa uno de los ejes del análisis (miniaturización, densidad, coronilla,
+        grasa, irritación y entradas). Gracias a esta visualización puedes ver si tu cabello ha
+        mejorado, empeorado o se ha mantenido estable tras los cuidados aplicados.
+    </p>
+
+    <div class="flex gap-6 mb-8 justify-center">
+
+        <div class="flex flex-col">
+            <label class="text-sm font-semibold text-gray-700 mb-1">Desde</label>
+            <select id="dateStart"
+                class="px-4 py-2 rounded-lg border border-gray-300 bg-white shadow-sm 
+                       focus:ring-2 focus:ring-blue-400 focus:border-blue-400 
+                       transition-all cursor-pointer">
+            </select>
+        </div>
+
+        <div class="flex flex-col">
+            <label class="text-sm font-semibold text-gray-700 mb-1">Hasta</label>
+            <select id="dateEnd"
+                class="px-4 py-2 rounded-lg border border-gray-300 bg-white shadow-sm 
+                       focus:ring-2 focus:ring-blue-400 focus:border-blue-400 
+                       transition-all cursor-pointer">
+            </select>
+        </div>
+
+    </div>
+
+    <div class="w-full max-w-4xl h-[400px] flex justify-center items-center">
+        <canvas id="evolucionChart" class="chart-canvas"></canvas>
+    </div>
+
+</div>
+
+<div id="evolution-data" class="evolution-hidden">
+    {{ evolution:historial }}
+        <div class="evo-item"
+             data-json='{
+                "fecha": "{{ fecha }}",
+                "miniaturizacion": {{ miniaturizacion }},
+                "densidad_media": {{ densidad_media }},
+                "coronilla": {{ coronilla }},
+                "grasa": {{ grasa }},
+                "entradas": {{ entradas }},
+                "irritacion": {{ irritacion }}
+             }'>
+        </div>
+    {{ /evolution:historial }}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+    const items = Array.from(document.querySelectorAll("#evolution-data .evo-item"));
+    const historial = items.map(el => JSON.parse(el.dataset.json));
+
+    const fechas = [...new Set(historial.map(i => i.fecha))].sort();
+    const startSelect = document.getElementById("dateStart");
+    const endSelect = document.getElementById("dateEnd");
+
+    fechas.forEach(f => {
+        startSelect.innerHTML += `<option value="${f}">${f}</option>`;
+        endSelect.innerHTML += `<option value="${f}">${f}</option>`;
+    });
+
+    startSelect.value = fechas[0];
+    endSelect.value = fechas[fechas.length - 1];
+
+    let chart = null;
+
+    function renderChart() {
+        const start = startSelect.value;
+        const end = endSelect.value;
+
+        const filtrado = historial.filter(i => i.fecha >= start && i.fecha <= end);
+
+        const filtradoEscalado = filtrado.map(i => ({
+            ...i,
+            densidad_escalada: 1 + (i.densidad_media * 2)
+        }));
+
+        const labels = filtradoEscalado.map(i => i.fecha);
+
+        if (chart) chart.destroy();
+
+        const ctx = document.getElementById("evolucionChart").getContext("2d");
+
+        chart = new Chart(ctx, {
+            type: "line",
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: "Miniaturización",
+                        data: filtradoEscalado.map(i => i.miniaturizacion),
+                        borderColor: "#e63946",
+                        tension: 0.3
+                    },
+                    {
+                        label: "Densidad media",
+                        data: filtradoEscalado.map(i => i.densidad_escalada),
+                        realValues: filtradoEscalado.map(i => i.densidad_media),
+                        borderColor: "#457b9d",
+                        tension: 0.3
+                    },
+                    {
+                        label: "Coronilla",
+                        data: filtradoEscalado.map(i => i.coronilla),
+                        borderColor: "#2a9d8f",
+                        tension: 0.3
+                    },
+                    {
+                        label: "Grasa",
+                        data: filtradoEscalado.map(i => i.grasa),
+                        borderColor: "#f4a261",
+                        tension: 0.3
+                    },
+                    {
+                        label: "Irritación",
+                        data: filtradoEscalado.map(i => i.irritacion),
+                        borderColor: "#e9c46a",
+                        tension: 0.3
+                    },
+                    {
+                        label: "Entradas",
+                        data: filtradoEscalado.map(i => i.entradas),
+                        borderColor: "#8d99ae",
+                        tension: 0.3
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        min: 1,
+                        max: 3,
+                        ticks: {
+                            stepSize: 1,
+                            callback: function(value) {
+                                const map = { 1: "baja", 2: "media", 3: "alta" };
+                                return map[value] || value;
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        labels: {
+                            usePointStyle: true,
+                            pointStyle: "circle",
+                            font: { size: 14 }
+                        },
+
+                        // 🔥 CLICK PARA MOSTRAR/OCULTAR LÍNEA
+                        onClick: (e, legendItem, legend) => {
+                            const chart = legend.chart;
+                            const index = legendItem.datasetIndex;
+
+                            const meta = chart.getDatasetMeta(index);
+
+                            // Alternar visibilidad
+                            meta.hidden = meta.hidden === null ? true : !meta.hidden;
+
+                            chart.update();
+                        }
+                    },
+
+                    tooltip: {
+                        callbacks: {
+                            label: function(ctx) {
+                                const label = ctx.dataset.label;
+                                const value = ctx.raw;
+
+                                const map = { 1: "baja", 2: "media", 3: "alta" };
+
+                                if (label === "Densidad media") {
+                                    const real = ctx.dataset.realValues[ctx.dataIndex];
+                                    return `${label}: ${real.toFixed(3)}`;
+                                }
+
+                                return `${label}: ${map[value]}`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    startSelect.addEventListener("change", renderChart);
+    endSelect.addEventListener("change", renderChart);
+
+    renderChart();
+});
+</script>
