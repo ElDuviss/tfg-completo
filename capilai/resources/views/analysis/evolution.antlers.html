@@ -31,8 +31,16 @@
 
     </div>
 
-    <div class="w-full max-w-4xl h-[400px] flex justify-center items-center">
-        <canvas id="evolucionChart" class="chart-canvas"></canvas>
+    <div class="w-full flex flex-col items-center">
+
+        <div id="mobileLegend" class="mobile-legend"></div>
+
+        <div class="chart-scroll">
+            <div class="chart-wrapper">
+                <canvas id="evolucionChart"></canvas>
+            </div>
+        </div>
+
     </div>
 
 </div>
@@ -58,16 +66,34 @@
 <script>
 document.addEventListener("DOMContentLoaded", () => {
 
-    const items = Array.from(document.querySelectorAll("#evolution-data .evo-item"));
-    const historial = items.map(el => JSON.parse(el.dataset.json));
+    const items = Array.from(
+        document.querySelectorAll("#evolution-data .evo-item")
+    );
 
-    const fechas = [...new Set(historial.map(i => i.fecha))].sort();
+    const historial = items.map(el =>
+        JSON.parse(el.dataset.json)
+    );
+
+    const fechas = [
+        ...new Set(historial.map(i => i.fecha))
+    ].sort();
+
     const startSelect = document.getElementById("dateStart");
     const endSelect = document.getElementById("dateEnd");
 
     fechas.forEach(f => {
-        startSelect.innerHTML += `<option value="${f}">${f}</option>`;
-        endSelect.innerHTML += `<option value="${f}">${f}</option>`;
+
+        startSelect.innerHTML += `
+            <option value="${f}">
+                ${f}
+            </option>
+        `;
+
+        endSelect.innerHTML += `
+            <option value="${f}">
+                ${f}
+            </option>
+        `;
     });
 
     startSelect.value = fechas[0];
@@ -76,10 +102,13 @@ document.addEventListener("DOMContentLoaded", () => {
     let chart = null;
 
     function renderChart() {
+
         const start = startSelect.value;
         const end = endSelect.value;
 
-        const filtrado = historial.filter(i => i.fecha >= start && i.fecha <= end);
+        const filtrado = historial.filter(
+            i => i.fecha >= start && i.fecha <= end
+        );
 
         const filtradoEscalado = filtrado.map(i => ({
             ...i,
@@ -88,102 +117,143 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const labels = filtradoEscalado.map(i => i.fecha);
 
-        if (chart) chart.destroy();
+        if (chart) {
+            chart.destroy();
+        }
 
-        const ctx = document.getElementById("evolucionChart").getContext("2d");
+        const ctx = document
+            .getElementById("evolucionChart")
+            .getContext("2d");
 
         chart = new Chart(ctx, {
+
             type: "line",
+
             data: {
-                labels: labels,
+
+                labels,
+
                 datasets: [
+
                     {
                         label: "Miniaturización",
-                        data: filtradoEscalado.map(i => i.miniaturizacion),
+                        data: filtradoEscalado.map(
+                            i => i.miniaturizacion
+                        ),
                         borderColor: "#e63946",
                         tension: 0.3
                     },
+
                     {
                         label: "Densidad media",
-                        data: filtradoEscalado.map(i => i.densidad_escalada),
-                        realValues: filtradoEscalado.map(i => i.densidad_media),
+                        data: filtradoEscalado.map(
+                            i => i.densidad_escalada
+                        ),
+                        realValues: filtradoEscalado.map(
+                            i => i.densidad_media
+                        ),
                         borderColor: "#457b9d",
                         tension: 0.3
                     },
+
                     {
                         label: "Coronilla",
-                        data: filtradoEscalado.map(i => i.coronilla),
+                        data: filtradoEscalado.map(
+                            i => i.coronilla
+                        ),
                         borderColor: "#2a9d8f",
                         tension: 0.3
                     },
+
                     {
                         label: "Grasa",
-                        data: filtradoEscalado.map(i => i.grasa),
+                        data: filtradoEscalado.map(
+                            i => i.grasa
+                        ),
                         borderColor: "#f4a261",
                         tension: 0.3
                     },
+
                     {
                         label: "Irritación",
-                        data: filtradoEscalado.map(i => i.irritacion),
+                        data: filtradoEscalado.map(
+                            i => i.irritacion
+                        ),
                         borderColor: "#e9c46a",
                         tension: 0.3
                     },
+
                     {
                         label: "Entradas",
-                        data: filtradoEscalado.map(i => i.entradas),
+                        data: filtradoEscalado.map(
+                            i => i.entradas
+                        ),
                         borderColor: "#8d99ae",
                         tension: 0.3
                     }
                 ]
             },
+
             options: {
+
                 responsive: true,
+                maintainAspectRatio: false,
+
                 scales: {
+
                     y: {
+
                         min: 1,
                         max: 3,
+
                         ticks: {
+
                             stepSize: 1,
+
                             callback: function(value) {
-                                const map = { 1: "baja", 2: "media", 3: "alta" };
+
+                                const map = {
+                                    1: "baja",
+                                    2: "media",
+                                    3: "alta"
+                                };
+
                                 return map[value] || value;
                             }
                         }
                     }
                 },
+
                 plugins: {
+
                     legend: {
-                        display: true,
-                        labels: {
-                            usePointStyle: true,
-                            pointStyle: "circle",
-                            font: { size: 14 }
-                        },
-
-                        // 🔥 CLICK PARA MOSTRAR/OCULTAR LÍNEA
-                        onClick: (e, legendItem, legend) => {
-                            const chart = legend.chart;
-                            const index = legendItem.datasetIndex;
-
-                            const meta = chart.getDatasetMeta(index);
-
-                            // Alternar visibilidad
-                            meta.hidden = meta.hidden === null ? true : !meta.hidden;
-
-                            chart.update();
-                        }
+                        display: false
                     },
 
                     tooltip: {
+
                         callbacks: {
+
                             label: function(ctx) {
+
                                 const label = ctx.dataset.label;
                                 const value = ctx.raw;
 
-                                const map = { 1: "baja", 2: "media", 3: "alta" };
+                                const map = {
+                                    1: "baja",
+                                    2: "media",
+                                    3: "alta"
+                                };
 
-                                if (label === "Densidad media") {
-                                    const real = ctx.dataset.realValues[ctx.dataIndex];
+                                if (
+                                    label === "Densidad media"
+                                ) {
+
+                                    const real =
+                                        ctx.dataset.realValues[
+                                            ctx.dataIndex
+                                        ];
+
                                     return `${label}: ${real.toFixed(3)}`;
                                 }
 
@@ -194,10 +264,74 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             }
         });
+
+        createLegend(chart);
     }
 
-    startSelect.addEventListener("change", renderChart);
-    endSelect.addEventListener("change", renderChart);
+    function createLegend(chart) {
+
+        const legend =
+            document.getElementById("mobileLegend");
+
+        legend.innerHTML = "";
+
+        chart.data.datasets.forEach(
+            (dataset, index) => {
+
+                const item =
+                    document.createElement("div");
+
+                item.className = "legend-item";
+
+                item.innerHTML = `
+                    <span
+                        class="legend-color"
+                        style="
+                            background:${dataset.borderColor}
+                        ">
+                    </span>
+
+                    <span>
+                        ${dataset.label}
+                    </span>
+                `;
+
+                item.addEventListener(
+                    "click",
+                    () => {
+
+                        const meta =
+                            chart.getDatasetMeta(
+                                index
+                            );
+
+                        meta.hidden =
+                            meta.hidden === null
+                                ? true
+                                : !meta.hidden;
+
+                        item.classList.toggle(
+                            "hidden"
+                        );
+
+                        chart.update();
+                    }
+                );
+
+                legend.appendChild(item);
+            }
+        );
+    }
+
+    startSelect.addEventListener(
+        "change",
+        renderChart
+    );
+
+    endSelect.addEventListener(
+        "change",
+        renderChart
+    );
 
     renderChart();
 });

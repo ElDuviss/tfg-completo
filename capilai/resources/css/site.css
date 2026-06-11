@@ -18,3 +18,64 @@
   max-height: 500px;
   display: block;
 }
+
+.chart-scroll {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.chart-wrapper {
+    min-width: 900px;
+    height: 400px;
+}
+
+#mobileLegend {
+    display: flex;
+    margin-top: 20px;
+}
+
+/* móvil */
+@media (max-width: 639px) {
+
+    #mobileLegend {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .chart-wrapper {
+        min-width: 850px;
+    }
+}
+
+/* sm+ */
+@media (min-width: 640px) {
+
+    #mobileLegend {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 20px;
+    }
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    user-select: none;
+    transition: opacity .2s;
+}
+
+.legend-item.hidden {
+    opacity: .35;
+}
+
+.legend-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 999px;
+    flex-shrink: 0;
+}
