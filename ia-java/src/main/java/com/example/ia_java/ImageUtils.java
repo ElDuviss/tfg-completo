@@ -3,9 +3,12 @@ package com.example.ia_java;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.util.Base64;
+
 import javax.imageio.ImageIO;
+
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfByte;
 import org.opencv.imgcodecs.Imgcodecs;
 
 public class ImageUtils {
@@ -97,5 +100,19 @@ public class ImageUtils {
         }
 
         return img;
+    }
+
+    public static String matToBase64(Mat mat) throws Exception {
+
+        if (mat == null || mat.empty()) {
+            throw new Exception("El Mat está vacío o es null");
+        }
+
+        MatOfByte mob = new MatOfByte();
+        Imgcodecs.imencode(".png", mat, mob);
+
+        byte[] bytes = mob.toArray();
+
+        return Base64.getEncoder().encodeToString(bytes);
     }
 }

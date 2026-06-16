@@ -7,11 +7,13 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Statamic\Facades\Entry;
 use App\Models\Foto;
+use Illuminate\Support\Facades\Log;
 
 class FotoController extends Controller
 {
     public function subirFoto(Request $request)
     {
+
         $userId = session('usuario_id');
 
         if (! $userId) {
@@ -30,41 +32,76 @@ class FotoController extends Controller
 
         $response = Http::post('http://capilai-n8n:5678/webhook/validar-foto', [
             'imagen' => 'data:image/png;base64,' . $imageBase64,
-            'slug' => $slugActual,
+            'slug'   => $slugActual,
         ]);
 
-        $raw = $response->json()['valida'];
+        if (!$response->successful()) {
+            return back()->with('error', 'Error al validar la foto en n8n.');
+        }
+
+        $raw = $response->json()['valida'] ?? 'false';
         $raw = ltrim($raw, '=');
         $valida = in_array(strtolower($raw), ['true', '1'], true);
 
         if (!$valida) {
-            return back()->with('error', $response->json()['mensaje']);
+            return back()->with('error', $response->json()['mensaje'] ?? 'La foto no es válida.');
         }
+
+        $fotoAnterior = Foto::where('user_id', $userId)
+                            ->where('slug', $slugActual)
+                            ->orderBy('created_at', 'asc')
+                            ->first();
 
         $nombreArchivo = "fotos/user_{$userId}_{$slugActual}_" . time() . ".png";
-        Storage::disk('local')->put($nombreArchivo, base64_decode($imageBase64));
 
-        Foto::updateOrCreate(
-            [
+        if (!$fotoAnterior) {
+
+
+            Storage::disk('local')->put($nombreArchivo, base64_decode($imageBase64));
+
+            Foto::create([
                 'user_id' => $userId,
-                'slug' => $slugActual,
-            ],
-            [
-                'base64' => $nombreArchivo,
-                'valida' => true,
-            ]
-        );
+                'slug'    => $slugActual,
+                'base64'  => $nombreArchivo,
+                'valida'  => true,
+            ]);
 
-        $prefijo = "fotos/user_{$userId}_{$slugActual}_";
-        $archivos = Storage::disk('local')->files('fotos');
+        } else {
 
-        foreach ($archivos as $archivo) {
-            if (str_starts_with($archivo, $prefijo) && $archivo !== $nombreArchivo) {
-                Storage::disk('local')->delete($archivo);
+            $foto1Base64 = base64_encode(Storage::disk('local')->get($fotoAnterior->base64));
+            $foto2Base64 = $imageBase64;
+
+            $respAlinear = Http::post('http://capilai-n8n:5678/webhook/alinear-foto', [
+                'foto_1' => 'data:image/png;base64,' . $foto1Base64,
+                'foto_2' => 'data:image/png;base64,' . $foto2Base64
+            ]);
+
+            if (!$respAlinear->successful()) {
+                return back()->with('error', 'Error al procesar la foto en n8n.');
             }
+
+            $fotoProcesada = $respAlinear->json()['foto_alineada'] ?? null;
+
+            if (!$fotoProcesada) {
+                return back()->with('error', 'n8n no devolvió la foto procesada.');
+            }
+
+            $fotoProcesada = ltrim($fotoProcesada, '=');
+            $fotoProcesada = preg_replace('/^data:image\/\w+;base64,/', '', $fotoProcesada);
+            Storage::disk('local')->put($nombreArchivo, base64_decode($fotoProcesada));
+
+            Log::info($fotoProcesada);
+
+            Storage::disk('local')->put($nombreArchivo, base64_decode($fotoProcesada));
+
+            Foto::create([
+                'user_id' => $userId,
+                'slug'    => $slugActual,
+                'base64'  => $nombreArchivo,
+                'valida'  => true,
+            ]);
         }
 
-        // Actualizar Statamic
         $entry = Entry::query()
             ->where('collection', 'photos')
             ->where('slug', $slugActual)
