@@ -9,7 +9,7 @@ use App\Http\Controllers\FotoController;
 use App\Http\Controllers\AnalysisController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\DatofotoController;
-use App\Http\Controllers\EvolutionController;
+use App\Http\Controllers\ComparisonController;
 
 Route::post('/usuarios', [UsuarioController::class, 'store'])->name('usuarios.store');
 Route::get('/usuarios', [UsuarioController::class, 'index'])->name('usuarios.index');
@@ -41,3 +41,6 @@ Route::post('/datofotos/guardar', [DatofotoController::class, 'guardar']);
 Route::post('/cuenta/eliminar', [AnalysisController::class, 'destroyAccount']);
 
 Route::statamic('/analysis/evolution', '/analysis/evolution');
+
+Route::post('/comparison/run', [ComparisonController::class, 'compare']);
+

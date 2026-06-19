@@ -47,8 +47,8 @@
     </div>
 
     <div class="flex justify-center">
-        <a
-            href="/analysis/evolution"
+        <button
+            id="btn-evolution"
             class="flex items-center gap-4 p-5 rounded-xl border transition
                 w-full sm:w-[calc(50%-12px)]
                 min-h-[140px]
@@ -73,7 +73,7 @@
                     Mi evolución
                 </span>
             </div>
-        </a>
+        </button>
     </div>
 
     <div class="flex flex-col items-center justify-center gap-4 mt-4">
@@ -206,5 +206,22 @@ document.getElementById('chat-input').addEventListener('keydown', async function
 
         box.scrollTop = box.scrollHeight;
     }
+});
+
+document.getElementById('btn-evolution').addEventListener('click', async () => {
+
+    const loader = document.getElementById('pantalla-carga');
+    loader.classList.remove('hidden');
+
+    await fetch('/comparison/run', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({})
+    });
+
+    window.location.href = "/analysis/evolution";
 });
 </script>
