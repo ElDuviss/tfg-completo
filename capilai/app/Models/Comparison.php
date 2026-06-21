@@ -10,8 +10,8 @@ class Comparison extends Model
 
     protected $fillable = [
         'user_id',
-        'photo_a_id',
-        'photo_b_id',
+        'datofoto_nuevo_id',
+        'datofoto_antiguo_id',
         'comparison_text',
     ];
 
@@ -20,13 +20,13 @@ class Comparison extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function photoA()
+    public function datofotoNuevo()
     {
-        return $this->belongsTo(Foto::class, 'photo_a_id');
+        return $this->belongsTo(Datofoto::class, 'datofoto_nuevo_id');
     }
 
-    public function photoB()
+    public function datofotoAntiguo()
     {
-        return $this->belongsTo(Foto::class, 'photo_b_id');
+        return $this->belongsTo(Datofoto::class, 'datofoto_antiguo_id');
     }
 }

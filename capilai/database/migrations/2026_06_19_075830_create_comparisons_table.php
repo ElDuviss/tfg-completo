@@ -10,17 +10,28 @@ return new class extends Migration
     {
         Schema::create('comparisons', function (Blueprint $table) {
             $table->id();
-
             $table->unsignedBigInteger('user_id');
-            $table->unsignedBigInteger('photo_a_id');
-            $table->unsignedBigInteger('photo_b_id');
-            $table->unique(['photo_a_id', 'photo_b_id']);
+            $table->unsignedBigInteger('datofoto_nuevo_id');
+            $table->unsignedBigInteger('datofoto_antiguo_id');
+            $table->unique(['datofoto_nuevo_id', 'datofoto_antiguo_id']);
             $table->text('comparison_text');
             $table->timestamps();
 
-            $table->foreign('user_id')->references('id')->on('usuarios')->onDelete('cascade');
-            $table->foreign('photo_a_id')->references('id')->on('fotos')->onDelete('cascade');
-            $table->foreign('photo_b_id')->references('id')->on('fotos')->onDelete('cascade');
+
+            $table->foreign('user_id')
+                ->references('id')
+                ->on('usuarios')
+                ->onDelete('cascade');
+
+            $table->foreign('datofoto_nuevo_id')
+                ->references('id')
+                ->on('datofotos')
+                ->onDelete('cascade');
+
+            $table->foreign('datofoto_antiguo_id')
+                ->references('id')
+                ->on('datofotos')
+                ->onDelete('cascade');
         });
     }
 
