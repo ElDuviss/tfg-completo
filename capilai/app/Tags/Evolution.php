@@ -3,7 +3,7 @@
 namespace App\Tags;
 
 use Statamic\Tags\Tags;
-use App\Models\Analysis;
+use App\Models\Datofoto;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 
@@ -18,30 +18,34 @@ class Evolution extends Tags
             return [];
         }
 
-        $analisis = Analysis::where('user_id', $userId)
+        $datofotos = Datofoto::where('user_id', $userId)
             ->orderBy('created_at', 'asc')
             ->get();
 
-        if ($analisis->isEmpty()) {
+        if ($datofotos->isEmpty()) {
             return [];
         }
 
         $historial = [];
 
-        foreach ($analisis as $item) {
+        foreach ($datofotos as $df) {
 
-            $jsonPath = $item->fotos_json;
+            $jsonPath = $df->archivo_json;
 
             if (!$jsonPath || !Storage::exists($jsonPath)) {
+                Log::warning("EVOLUTION TAG → Archivo JSON no encontrado", [
+                    'path' => $jsonPath
+                ]);
                 continue;
             }
 
             $jsonContent = Storage::get($jsonPath);
-
             $json = json_decode($jsonContent, true);
 
             if (!$json) {
-                Log::error("EVOLUTION TAG → Error al decodificar JSON", ['path' => $jsonPath]);
+                Log::error("EVOLUTION TAG → Error al decodificar JSON", [
+                    'path' => $jsonPath
+                ]);
                 continue;
             }
 
@@ -54,8 +58,8 @@ class Evolution extends Tags
                 'marcadas' => 3
             ];
 
-            $entry = [
-                'fecha' => $item->created_at->format('Y-m-d'),
+            $historial[] = [
+                'fecha' => $df->created_at->format('Y-m-d'),
                 'miniaturizacion' => $map[$json['miniaturizacion']] ?? 0,
                 'densidad_media' => floatval($json['densidad_media'] ?? 0),
                 'coronilla' => $map[$json['coronilla']] ?? 0,
@@ -63,8 +67,6 @@ class Evolution extends Tags
                 'entradas' => $map[$json['entradas']] ?? 0,
                 'irritacion' => $map[$json['irritacion']] ?? 0,
             ];
-
-            $historial[] = $entry;
         }
 
         return $historial;

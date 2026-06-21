@@ -14,6 +14,10 @@ class HairPhotos extends Tags
         $slug = $this->context->get('slug');
         $userId = session('usuario_id');
 
+        if (!$userId) {
+            return '<p class="text-gray-500 text-center py-4">Usuario no autenticado.</p>';
+        }
+
         $analyses = Analysis::where('user_id', $userId)
             ->where('type', $slug)
             ->orderBy('created_at', 'desc')
@@ -26,12 +30,26 @@ class HairPhotos extends Tags
         $html = '';
 
         foreach ($analyses as $analysis) {
-            if (Storage::exists($analysis->fotos_json)) {
-                $contenido = Storage::get($analysis->fotos_json);
-                $html .= '<div class="mb-8" data-fecha="'.$analysis->created_at->format('d/m/Y').'">'.Str::markdown($contenido).'</div>';
-            } else {
-                $html .= '<p class="text-red-500 text-center py-4">Archivo no encontrado: '.$analysis->fotos_json.'</p>';
+
+            $datofoto = $analysis->datofoto;
+
+            if (!$datofoto) {
+                $html .= '<p class="text-red-500 text-center py-4">No se encontró datofoto asociado.</p>';
+                continue;
             }
+
+            $jsonPath = $datofoto->archivo_json;
+
+            if (!$jsonPath || !Storage::exists($jsonPath)) {
+                $html .= '<p class="text-red-500 text-center py-4">Archivo no encontrado: '.$jsonPath.'</p>';
+                continue;
+            }
+
+            $contenido = Storage::get($jsonPath);
+
+            $html .= '<div class="mb-8" data-fecha="'.$analysis->created_at->format('d/m/Y').'">'
+                   . Str::markdown($contenido)
+                   . '</div>';
         }
 
         return $html;

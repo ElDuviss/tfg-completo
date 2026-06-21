@@ -213,14 +213,21 @@ document.getElementById('btn-evolution').addEventListener('click', async () => {
     const loader = document.getElementById('pantalla-carga');
     loader.classList.remove('hidden');
 
-    await fetch('/comparison/run', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token }}'
-        },
-        body: JSON.stringify({})
-    });
+    try {
+        const response = await fetch('/comparison/run', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({})
+        });
+
+        await response.json();
+
+    } catch (error) {
+        console.error("Error en la petición:", error);
+    }
 
     window.location.href = "/analysis/evolution";
 });

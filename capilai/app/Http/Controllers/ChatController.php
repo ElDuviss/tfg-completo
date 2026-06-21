@@ -21,11 +21,15 @@ class ChatController extends Controller
         $pregunta = $request->mensaje;
         $userId = session('usuario_id');
 
-        $cuestionario = Cuestionario::where('user_id', $userId)->firstOrFail();
+        $cuestionario = Cuestionario::where('user_id', $userId)
+        ->orderBy('created_at', 'desc')
+        ->first();
         $contenidoArchivo = Storage::get($cuestionario->archivo_json);
         $datosCuestionario = json_decode($contenidoArchivo, true);
 
-        $datofoto = Datofoto::where('user_id', $userId)->latest()->first();
+        $datofoto = Datofoto::where('user_id', $userId)
+        ->orderBy('created_at', 'desc')
+        ->first();
         $contenidoFotos = Storage::get($datofoto->archivo_json);
         $features = json_decode($contenidoFotos, true);
 

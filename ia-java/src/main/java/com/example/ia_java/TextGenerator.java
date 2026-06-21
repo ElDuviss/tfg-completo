@@ -164,4 +164,59 @@ public class TextGenerator {
         return generarTextoIA(prompt);
     }
 
+    public String construirPromptComparacion(String slug,
+                                         String fotoA_png_base64,
+                                         String fotoB_png_base64,
+                                         Object datosFotos) {
+
+        String titulo = switch (slug) {
+            case "foto-frontal" -> "Comparación frontal";
+            case "foto-superior" -> "Comparación de coronilla";
+            case "foto-lateral-izquierda" -> "Comparación lateral izquierda";
+            case "foto-lateral-derecha" -> "Comparación lateral derecha";
+            default -> "Comparación capilar";
+        };
+
+        return """
+            Eres un experto en salud capilar y dermatología.
+
+            Tu tarea es analizar la evolución del usuario comparando dos fotografías.
+
+            APARTADO: %s
+
+            === FOTO A (más reciente, PNG base64) ===
+            %s
+
+            === FOTO B (más antigua, PNG base64) ===
+            %s
+
+            === DATOS DEL USUARIO (JSON) ===
+            %s
+
+            INSTRUCCIONES:
+            - Explica qué MEJORAS se observan en la foto A respecto a la foto B.
+            - Explica qué DESMEJORAS o EMPEORAMIENTOS se observan.
+            - Describe cambios en densidad, entradas, coronilla, grosor, brillo, inflamación, color o textura.
+            - No inventes datos imposibles de deducir.
+            - Usa un tono profesional, humano y claro.
+            - Devuelve SOLO el texto final, sin listas, sin títulos y sin formato.
+            """.formatted(titulo, fotoA_png_base64, fotoB_png_base64, datosFotos);
+    }
+
+    public String generarComparacionFotos(String slug,
+                                        String fotoA_png_base64,
+                                        String fotoB_png_base64,
+                                        Object datosFotos)
+            throws IOException, InterruptedException {
+
+        String prompt = construirPromptComparacion(
+                slug,
+                fotoA_png_base64,
+                fotoB_png_base64,
+                datosFotos
+        );
+
+        return generarTextoIA(prompt);
+    }
+
 }

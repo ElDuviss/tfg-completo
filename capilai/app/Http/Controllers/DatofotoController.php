@@ -18,10 +18,29 @@ class DatofotoController extends Controller
         }
 
         $fotos = Foto::where('user_id', $userId)->get();
+        $fotoFrontal = null;
+        $fotoSuperior = null;
+        $fotoIzquierda = null;
+        $fotoDerecha = null;
 
         $DatosImagenes = null;
 
         foreach ($fotos as $foto) {
+
+            switch ($foto->slug) {
+                case 'foto-frontal':
+                    $fotoFrontal = $foto->id;
+                    break;
+                case 'foto-superior':
+                    $fotoSuperior = $foto->id;
+                    break;
+                case 'foto-lateral-izquierda':
+                    $fotoIzquierda = $foto->id;
+                    break;
+                case 'foto-lateral-derecha':
+                    $fotoDerecha = $foto->id;
+                    break;
+            }
 
             if (!Storage::disk('local')->exists($foto->base64)) {
                 continue;
@@ -42,23 +61,19 @@ class DatofotoController extends Controller
         $nombreArchivo = "datofotos/user_{$userId}_" . time() . ".json";
         Storage::disk('local')->put($nombreArchivo, $contenidoJson);
 
-        Datofoto::updateOrCreate(
-            ['user_id' => $userId],
-            ['archivo_json' => $nombreArchivo]
-        );
-
-        $prefijo = "datofotos/user_{$userId}_";
-        $archivos = Storage::disk('local')->files('datofotos');
-
-        foreach ($archivos as $archivo) {
-            if (str_starts_with($archivo, $prefijo) && $archivo !== $nombreArchivo) {
-                Storage::disk('local')->delete($archivo);
-            }
-        }
+        $registro = Datofoto::create([
+            'user_id' => $userId,
+            'archivo_json' => $nombreArchivo,
+            'foto_frontal_id' => $fotoFrontal,
+            'foto_superior_id' => $fotoSuperior,
+            'foto_lateral_izquierda_id' => $fotoIzquierda,
+            'foto_lateral_derecha_id' => $fotoDerecha,
+        ]);
 
         return response()->json([
             'success' => true,
-            'archivo' => $nombreArchivo
+            'archivo' => $nombreArchivo,
+            'registro_id' => $registro->id
         ]);
     }
 }

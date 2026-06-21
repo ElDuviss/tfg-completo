@@ -6,27 +6,35 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up()
     {
         Schema::create('analysis', function (Blueprint $table) {
             $table->id();
+
             $table->unsignedBigInteger('user_id')->nullable();
             $table->string('type');
-            $table->json('cuestionario_json')->nullable();
-            $table->json('fotos_json')->nullable();
+            $table->unsignedBigInteger('cuestionario_id')->nullable();
+            $table->unsignedBigInteger('datofoto_id')->nullable();
             $table->longText('ai_response')->nullable();
             $table->timestamps();
-            $table->foreign('user_id')->references('id')->on('usuarios')->nullOnDelete();
+
+            $table->foreign('user_id')
+                ->references('id')
+                ->on('usuarios')
+                ->nullOnDelete();
+
+            $table->foreign('cuestionario_id')
+                ->references('id')
+                ->on('cuestionarios')
+                ->nullOnDelete();
+
+            $table->foreign('datofoto_id')
+                ->references('id')
+                ->on('datofotos')
+                ->nullOnDelete();
         });
     }
 
-
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('analysis');

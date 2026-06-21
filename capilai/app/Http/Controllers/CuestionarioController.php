@@ -14,33 +14,25 @@ class CuestionarioController extends Controller
     {
         $userId = session('usuario_id');
 
-        if (! $userId) {
+        if (!$userId) {
             return back()->with('error', 'No hay usuario autenticado.');
         }
 
         $user = Usuario::find($userId);
 
-        if (! $user) {
+        if (!$user) {
             return back()->with('error', 'Usuario no encontrado en la base de datos.');
         }
 
         $data = $request->except('_token');
         $filename = "cuestionarios/user_{$userId}_" . time() . ".json";
+
         Storage::disk('local')->put($filename, json_encode($data, JSON_PRETTY_PRINT));
 
-        Cuestionario::updateOrCreate(
-            ['user_id' => $user->id],
-            ['archivo_json' => $filename]
-        );
-
-        $prefijo = "cuestionarios/user_{$userId}_";
-        $archivos = Storage::files('cuestionarios');
-
-        foreach ($archivos as $archivo) {
-            if (str_starts_with($archivo, $prefijo) && $archivo !== $filename) {
-                Storage::delete($archivo);
-            }
-        }
+        Cuestionario::create([
+            'user_id' => $user->id,
+            'archivo_json' => $filename
+        ]);
 
         $entries = Entry::query()
             ->where('collection', 'photos')

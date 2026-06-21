@@ -11,18 +11,23 @@ class Analysis extends Model
     protected $fillable = [
         'user_id',
         'type',
-        'cuestionario_json',
-        'fotos_json',
+        'cuestionario_id',
+        'datofoto_id',
         'ai_response',
     ];
-
-    protected $casts = [
-        'cuestionario_json' => 'array',
-        'fotos_json'        => 'array',
-    ];
-
+    
     public function user()
     {
         return $this->belongsTo(Usuario::class, 'user_id');
+    }
+
+    public function cuestionario()
+    {
+        return $this->belongsTo(Cuestionario::class, 'cuestionario_id');
+    }
+
+    public function datofoto()
+    {
+        return $this->belongsTo(Datofoto::class, 'datofoto_id');
     }
 }
