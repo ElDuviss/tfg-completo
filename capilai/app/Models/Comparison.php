@@ -12,6 +12,8 @@ class Comparison extends Model
         'user_id',
         'datofoto_nuevo_id',
         'datofoto_antiguo_id',
+        'cuestionario_nuevo_id',
+        'cuestionario_antiguo_id',
         'comparison_text',
     ];
 
@@ -28,5 +30,15 @@ class Comparison extends Model
     public function datofotoAntiguo()
     {
         return $this->belongsTo(Datofoto::class, 'datofoto_antiguo_id');
+    }
+
+    public function cuestionarioNuevo()
+    {
+        return $this->belongsTo(Cuestionario::class, 'cuestionario_nuevo_id');
+    }
+
+    public function cuestionarioAntiguo()
+    {
+        return $this->belongsTo(Cuestionario::class, 'cuestionario_antiguo_id');
     }
 }

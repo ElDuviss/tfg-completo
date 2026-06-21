@@ -164,56 +164,52 @@ public class TextGenerator {
         return generarTextoIA(prompt);
     }
 
-    public String construirPromptComparacion(String slug,
-                                         String fotoA_png_base64,
-                                         String fotoB_png_base64,
-                                         Object datosFotos) {
-
-        String titulo = switch (slug) {
-            case "foto-frontal" -> "Comparación frontal";
-            case "foto-superior" -> "Comparación de coronilla";
-            case "foto-lateral-izquierda" -> "Comparación lateral izquierda";
-            case "foto-lateral-derecha" -> "Comparación lateral derecha";
-            default -> "Comparación capilar";
-        };
+    public String construirPromptComparacion(Object datofotoNuevo,
+                                         Object datofotoAntiguo,
+                                         Object cuestionarioNuevo,
+                                         Object cuestionarioAntiguo) {
 
         return """
             Eres un experto en salud capilar y dermatología.
 
-            Tu tarea es analizar la evolución del usuario comparando dos fotografías.
+            Tu tarea es analizar la evolución del usuario comparando dos registros capilares y sus respectivos cuestionarios:
+            - El registro más reciente (datofoto y cuestionario nuevos)
+            - El registro más antiguo (datofoto y cuestionario antiguos)
 
-            APARTADO: %s
-
-            === FOTO A (más reciente, PNG base64) ===
+            === DATOFOTO NUEVO ===
             %s
 
-            === FOTO B (más antigua, PNG base64) ===
+            === DATOFOTO ANTIGUO ===
             %s
 
-            === DATOS DEL USUARIO (JSON) ===
+            === CUESTIONARIO NUEVO ===
+            %s
+
+            === CUESTIONARIO ANTIGUO ===
             %s
 
             INSTRUCCIONES:
-            - Explica qué MEJORAS se observan en la foto A respecto a la foto B.
-            - Explica qué DESMEJORAS o EMPEORAMIENTOS se observan.
-            - Describe cambios en densidad, entradas, coronilla, grosor, brillo, inflamación, color o textura.
-            - No inventes datos imposibles de deducir.
-            - Usa un tono profesional, humano y claro.
-            - Devuelve SOLO el texto final, sin listas, sin títulos y sin formato.
-            """.formatted(titulo, fotoA_png_base64, fotoB_png_base64, datosFotos);
+            - Describe la evolución general del cabello y del cuero cabelludo entre ambos registros.
+            - Explica si hay mejoras o empeoramientos en densidad, miniaturización, entradas, coronilla, grasa o irritación.
+            - Considera también los cambios en hábitos, síntomas o tratamientos reflejados en los cuestionarios.
+            - No menciones números ni valores exactos.
+            - No generes listas, ni títulos, ni formato.
+            - Escribe únicamente uno o dos párrafos fluidos, naturales y profesionales.
+            - No inventes datos que no estén en los JSON.
+            """.formatted(datofotoNuevo, datofotoAntiguo, cuestionarioNuevo, cuestionarioAntiguo);
     }
 
-    public String generarComparacionFotos(String slug,
-                                        String fotoA_png_base64,
-                                        String fotoB_png_base64,
-                                        Object datosFotos)
-            throws IOException, InterruptedException {
+    public String generarComparacionDatos(Object datofotoNuevo,
+                                      Object datofotoAntiguo,
+                                      Object cuestionarioNuevo,
+                                      Object cuestionarioAntiguo)
+        throws IOException, InterruptedException {
 
         String prompt = construirPromptComparacion(
-                slug,
-                fotoA_png_base64,
-                fotoB_png_base64,
-                datosFotos
+                datofotoNuevo,
+                datofotoAntiguo,
+                cuestionarioNuevo,
+                cuestionarioAntiguo
         );
 
         return generarTextoIA(prompt);
