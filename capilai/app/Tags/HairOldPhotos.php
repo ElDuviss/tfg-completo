@@ -4,6 +4,7 @@ namespace App\Tags;
 
 use Statamic\Tags\Tags;
 use App\Models\Foto;
+use App\Models\Datofoto;
 use Illuminate\Support\Facades\Storage;
 
 class HairOldPhotos extends Tags
@@ -34,6 +35,19 @@ class HairOldPhotos extends Tags
 
             foreach ($fotosAntiguas as $foto) {
 
+                // 🔥 BUSCAR EL DATOFOTO AL QUE PERTENECE ESTA FOTO
+                $datofoto = Datofoto::where('user_id', $userId)
+                    ->where(function ($q) use ($foto) {
+                        $q->where('foto_frontal_id', $foto->id)
+                          ->orWhere('foto_superior_id', $foto->id)
+                          ->orWhere('foto_lateral_izquierda_id', $foto->id)
+                          ->orWhere('foto_lateral_derecha_id', $foto->id);
+                    })
+                    ->first();
+
+                $datofotoId = $datofoto ? $datofoto->id : null;
+
+                // Cargar imagen
                 $ruta = ltrim($foto->base64, '/');
                 $ruta = str_replace(['private/', 'app/'], '', $ruta);
 
@@ -55,7 +69,8 @@ class HairOldPhotos extends Tags
                          data-fecha="'.$fecha.'"
                          data-hora="'.$hora.'"
                          data-fecha-completa="'.$fechaCompleta.'"
-                         data-slug="'.$slug.'">
+                         data-slug="'.$slug.'"
+                         data-datofoto-id="'.$datofotoId.'">
                         <img src="'.$dataUrl.'" alt="'.$slug.'" class="rounded-lg shadow w-full max-w-sm" />
                     </div>
                 ';

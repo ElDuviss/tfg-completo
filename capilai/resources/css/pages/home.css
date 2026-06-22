@@ -31,12 +31,12 @@ span {
 }
 
 .chunk-analysis strong {
-  color: #1e293b; /* slate-800 */
+  color: #1e293b;
   font-weight: 600;
 }
 
 .chunk-analysis ul {
-  background-color: #f8fafc; /* slate-50 */
+  background-color: #f8fafc;
   border-radius: 0.75rem;
   padding: 1.25rem 1.25rem 1.25rem 2.25rem;
   margin-bottom: 1.5rem;
@@ -47,9 +47,9 @@ span {
 
 .chunk-analysis li {
   margin-bottom: 0.5rem;
-  color: #334155; /* slate-700 */
+  color: #334155;
 }
 
 .chunk-analysis li::marker {
-  color: #2563eb; /* blue-600 */
+  color: #2563eb;
 }

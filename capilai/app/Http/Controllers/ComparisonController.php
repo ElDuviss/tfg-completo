@@ -7,6 +7,7 @@ use App\Models\Datofoto;
 use App\Models\Cuestionario;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class ComparisonController extends Controller
 {
@@ -37,15 +38,15 @@ class ComparisonController extends Controller
 
         foreach ($datofotosAntiguos as $index => $dfAntiguo) {
 
+            if (!isset($cuestionariosAntiguos[$index])) {
+                Log::warning("No existe cuestionario antiguo para index $index");
+                continue;
+            }
+
             $cuestionarioAntiguo = $cuestionariosAntiguos[$index];
 
-            if ($dfAntiguo->id === $dfNuevo->id) {
-                continue;
-            }
-
-            if ($cuestionarioAntiguo->id === $cuestionarioNuevo->id) {
-                continue;
-            }
+            if ($dfAntiguo->id === $dfNuevo->id) continue;
+            if ($cuestionarioAntiguo->id === $cuestionarioNuevo->id) continue;
 
             $jsonAntiguo = json_decode(Storage::get($dfAntiguo->archivo_json), true);
             $jsonCuestionarioAntiguo = json_decode(Storage::get($cuestionarioAntiguo->archivo_json), true);
@@ -57,9 +58,7 @@ class ComparisonController extends Controller
                 ->where('cuestionario_antiguo_id', $cuestionarioAntiguo->id)
                 ->first();
 
-            if ($existe) {
-                continue;
-            }
+            if ($existe) continue;
 
             $response = Http::post('http://capilai-n8n:5678/webhook/comparacion', [
                 'datofoto_nuevo' => $jsonNuevo,
@@ -68,12 +67,13 @@ class ComparisonController extends Controller
                 'cuestionario_antiguo' => $jsonCuestionarioAntiguo
             ]);
 
-            $data = $response->json();
+            $data = $response->body();
 
             $archivoTexto = "analysis/Comparaciones/texto_user_{$userId}_" . time() . ".txt";
-            Storage::put($archivoTexto, $data['texto']);
 
-            Comparison::create([
+            Storage::put($archivoTexto, $data);
+
+            $comparison = Comparison::create([
                 'user_id' => $userId,
                 'datofoto_nuevo_id' => $dfNuevo->id,
                 'datofoto_antiguo_id' => $dfAntiguo->id,

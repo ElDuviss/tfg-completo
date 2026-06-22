@@ -196,6 +196,7 @@ public class TextGenerator {
             - No generes listas, ni títulos, ni formato.
             - Escribe únicamente uno o dos párrafos fluidos, naturales y profesionales.
             - No inventes datos que no estén en los JSON.
+            - Solo escribe la evolución del pelo nada más.
             """.formatted(datofotoNuevo, datofotoAntiguo, cuestionarioNuevo, cuestionarioAntiguo);
     }
 

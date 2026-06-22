@@ -66,79 +66,89 @@
 
 </div>
 
+<div id="comparaciones" style="display:none;">
+    {{ comparison_texts }}
+</div>
+
+<div
+    id="comparacionMostrada"
+    class="chunk-analysis text-gray-700 leading-relaxed text-base text-justify bg-white rounded-2xl shadow-lg border border-gray-100 p-6 mt-6"
+></div>
+
 <script>
 document.addEventListener("DOMContentLoaded", () => {
 
     const angleSelect = document.getElementById("angleSelect");
     const compareDate = document.getElementById("compareDate");
     const compareHour = document.getElementById("compareHour");
+    const comparacionMostrada = document.getElementById("comparacionMostrada");
 
-    function filtrarPorSlug() {
-        const slugSeleccionado = angleSelect.value;
-        const fotos = document.querySelectorAll('#oldPhotos [data-slug]');
-        const fotosNuevas = document.querySelectorAll('#latestPhotos [data-slug]');
+    function mostrarComparacionCorrecta() {
 
-        fotos.forEach(f => f.style.display = "none");
-        fotosNuevas.forEach(f => f.style.display = "none");
+        const slug = angleSelect.value;
 
-        fotosNuevas.forEach(f => {
-            if (f.getAttribute('data-slug') === slugSeleccionado) {
-                f.style.display = "flex";
+        // Foto nueva visible
+        const fotoNueva = document.querySelector(
+            `#latestPhotos [data-slug="${slug}"]`
+        );
+
+        // Foto antigua visible
+        const fotoAntigua = Array.from(
+            document.querySelectorAll(`#oldPhotos [data-slug="${slug}"]`)
+        ).find(el => el.style.display !== "none");
+
+        if (!fotoNueva || !fotoAntigua) {
+
+            comparacionMostrada.innerHTML =
+                "<p class='text-gray-500 text-center'>No hay comparación disponible.</p>";
+
+            return;
+        }
+
+        const idNuevo = fotoNueva.getAttribute("data-datofoto-id");
+        const idAntiguo = fotoAntigua.getAttribute("data-datofoto-id");
+
+        console.log("ID NUEVO:", idNuevo);
+        console.log("ID ANTIGUO:", idAntiguo);
+
+        const comparaciones = document.querySelectorAll(
+            "#comparaciones [data-datofoto-nuevo]"
+        );
+
+        let encontrada = null;
+
+        comparaciones.forEach(c => {
+
+            const compNuevo = c.getAttribute("data-datofoto-nuevo");
+            const compAntiguo = c.getAttribute("data-datofoto-antiguo");
+
+            console.log(
+                "Comparación:",
+                compNuevo,
+                compAntiguo
+            );
+
+            if (
+                String(compNuevo) === String(idNuevo) &&
+                String(compAntiguo) === String(idAntiguo)
+            ) {
+                encontrada = c.innerHTML;
             }
         });
 
-        const fotosFiltradas = Array.from(fotos)
-            .filter(f => f.getAttribute('data-slug') === slugSeleccionado);
+        if (encontrada) {
 
-        const fechasUnicas = [...new Set(
-            fotosFiltradas.map(f => f.getAttribute('data-fecha'))
-        )];
+            comparacionMostrada.innerHTML = encontrada;
 
-        fechasUnicas.sort((a, b) => {
-            const [dA, mA, yA] = a.split('/').map(Number);
-            const [dB, mB, yB] = b.split('/').map(Number);
-            return new Date(yB, mB - 1, dB) - new Date(yA, mA - 1, dA);
-        });
+        } else {
 
-        compareDate.innerHTML = "";
-        fechasUnicas.forEach(fecha => {
-            const op = document.createElement("option");
-            op.value = fecha;
-            op.textContent = fecha;
-            compareDate.appendChild(op);
-        });
-
-        compareDate.value = fechasUnicas[0];
-
-        rellenarHoras();
-
-        filtrarPorFechaYHora();
-    }
-
-    function rellenarHoras() {
-        const fechaSeleccionada = compareDate.value;
-        const slugSeleccionado = angleSelect.value;
-
-        const fotos = document.querySelectorAll('#oldPhotos [data-slug]');
-        const horas = Array.from(fotos)
-            .filter(f => f.getAttribute('data-slug') === slugSeleccionado &&
-                         f.getAttribute('data-fecha') === fechaSeleccionada)
-            .map(f => f.getAttribute('data-hora'));
-
-        horas.sort((a, b) => b.localeCompare(a));
-
-        compareHour.innerHTML = "";
-        horas.forEach(h => {
-            const op = document.createElement("option");
-            op.value = h;
-            op.textContent = h;
-            compareHour.appendChild(op);
-        });
-
-        compareHour.value = horas[0];
+            comparacionMostrada.innerHTML =
+                "<p class='text-gray-500 text-center'>No existe comparación para estas fotos.</p>";
+        }
     }
 
     function filtrarPorFechaYHora() {
+
         const fecha = compareDate.value;
         const hora = compareHour.value;
         const slug = angleSelect.value;
@@ -146,22 +156,132 @@ document.addEventListener("DOMContentLoaded", () => {
         const fotos = document.querySelectorAll('#oldPhotos [data-slug]');
 
         fotos.forEach(f => {
+
             const fFecha = f.getAttribute('data-fecha');
             const fHora = f.getAttribute('data-hora');
             const fSlug = f.getAttribute('data-slug');
 
-            f.style.display = (fFecha === fecha && fHora === hora && fSlug === slug)
-                ? "flex"
-                : "none";
+            f.style.display = (
+                fFecha === fecha &&
+                fHora === hora &&
+                fSlug === slug
+            ) ? "flex" : "none";
         });
+
+        mostrarComparacionCorrecta();
+    }
+
+    function rellenarHoras() {
+
+        const fechaSeleccionada = compareDate.value;
+        const slugSeleccionado = angleSelect.value;
+
+        const fotos = document.querySelectorAll('#oldPhotos [data-slug]');
+
+        const horas = Array.from(fotos)
+            .filter(f =>
+                f.getAttribute('data-slug') === slugSeleccionado &&
+                f.getAttribute('data-fecha') === fechaSeleccionada
+            )
+            .map(f => f.getAttribute('data-hora'));
+
+        horas.sort((a, b) => b.localeCompare(a));
+
+        compareHour.innerHTML = "";
+
+        horas.forEach(h => {
+
+            const op = document.createElement("option");
+            op.value = h;
+            op.textContent = h;
+
+            compareHour.appendChild(op);
+        });
+
+        if (horas.length > 0) {
+            compareHour.value = horas[0];
+        }
+    }
+
+    function filtrarPorSlug() {
+
+        const slugSeleccionado = angleSelect.value;
+
+        const fotosAntiguas = document.querySelectorAll(
+            '#oldPhotos [data-slug]'
+        );
+
+        const fotosNuevas = document.querySelectorAll(
+            '#latestPhotos [data-slug]'
+        );
+
+        fotosAntiguas.forEach(f => f.style.display = "none");
+        fotosNuevas.forEach(f => f.style.display = "none");
+
+        fotosNuevas.forEach(f => {
+
+            if (f.getAttribute('data-slug') === slugSeleccionado) {
+                f.style.display = "flex";
+            }
+        });
+
+        const fotosFiltradas = Array.from(fotosAntiguas)
+            .filter(
+                f => f.getAttribute('data-slug') === slugSeleccionado
+            );
+
+        const fechasUnicas = [
+            ...new Set(
+                fotosFiltradas.map(
+                    f => f.getAttribute('data-fecha')
+                )
+            )
+        ];
+
+        fechasUnicas.sort((a, b) => {
+
+            const [dA, mA, yA] = a.split('/').map(Number);
+            const [dB, mB, yB] = b.split('/').map(Number);
+
+            return (
+                new Date(yB, mB - 1, dB) -
+                new Date(yA, mA - 1, dA)
+            );
+        });
+
+        compareDate.innerHTML = "";
+
+        fechasUnicas.forEach(fecha => {
+
+            const op = document.createElement("option");
+
+            op.value = fecha;
+            op.textContent = fecha;
+
+            compareDate.appendChild(op);
+        });
+
+        if (fechasUnicas.length > 0) {
+
+            compareDate.value = fechasUnicas[0];
+
+            rellenarHoras();
+            filtrarPorFechaYHora();
+        }
     }
 
     angleSelect.addEventListener("change", filtrarPorSlug);
+
     compareDate.addEventListener("change", () => {
+
         rellenarHoras();
         filtrarPorFechaYHora();
     });
-    compareHour.addEventListener("change", filtrarPorFechaYHora);
+
+    compareHour.addEventListener("change", () => {
+
+        filtrarPorFechaYHora();
+    });
 
     filtrarPorSlug();
 });
