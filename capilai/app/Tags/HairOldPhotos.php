@@ -22,6 +22,21 @@ class HairOldPhotos extends Tags
 
         $html = '';
 
+        // 🔥 1. Buscar la foto más nueva de cada slug
+        $idsMasNuevas = [];
+
+        foreach ($slugs as $slug) {
+            $fotoNueva = Foto::where('user_id', $userId)
+                ->where('slug', $slug)
+                ->orderBy('created_at', 'desc')
+                ->first();
+
+            if ($fotoNueva) {
+                $idsMasNuevas[] = $fotoNueva->id;
+            }
+        }
+
+        // 🔥 2. Ahora recorremos todas las fotos antiguas por slug
         foreach ($slugs as $slug) {
 
             $fotos = Foto::where('user_id', $userId)
@@ -29,13 +44,14 @@ class HairOldPhotos extends Tags
                 ->orderBy('created_at', 'desc')
                 ->get();
 
-            if ($fotos->count() <= 1) continue;
+            foreach ($fotos as $foto) {
 
-            $fotosAntiguas = $fotos->slice(1);
+                // ❌ 3. Si esta foto es una de las 4 más nuevas → NO SE MUESTRA
+                if (in_array($foto->id, $idsMasNuevas)) {
+                    continue;
+                }
 
-            foreach ($fotosAntiguas as $foto) {
-
-                // 🔥 BUSCAR EL DATOFOTO AL QUE PERTENECE ESTA FOTO
+                // 🔥 4. Buscar el datofoto al que pertenece esta foto
                 $datofoto = Datofoto::where('user_id', $userId)
                     ->where(function ($q) use ($foto) {
                         $q->where('foto_frontal_id', $foto->id)
@@ -55,6 +71,8 @@ class HairOldPhotos extends Tags
                     $contenido = Storage::get($ruta);
                 } elseif (Storage::disk('public')->exists($ruta)) {
                     $contenido = Storage::disk('public')->get($ruta);
+                } else {
+                    continue;
                 }
 
                 $base64 = base64_encode($contenido);

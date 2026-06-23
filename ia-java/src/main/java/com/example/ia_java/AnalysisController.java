@@ -2,7 +2,10 @@ package com.example.ia_java;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.springframework.web.bind.annotation.*;
+
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class AnalysisController {
@@ -107,37 +110,54 @@ public class AnalysisController {
         }
     }
 
-    private Map<String, Object> generarFeaturesGlobales(Map<String, Map<String, Object>> f) {
+    private Map<String, Object> generarFeaturesGlobales(
+        Map<String, Map<String, Object>> f) {
+
         Map<String, Object> r = new HashMap<>();
 
-        if (!f.containsKey("foto-frontal") ||
-            !f.containsKey("foto-lateral-derecha") ||
-            !f.containsKey("foto-lateral-izquierda") ||
-            !f.containsKey("foto-superior")) {
+        double frontal =
+                getDouble(f.get("foto-frontal").get("densidad"));
 
-            System.out.println("ERROR: Faltan fotos. Recibidas: " + f.keySet());
-            throw new RuntimeException("Faltan fotos para generar el análisis global");
+        double superior =
+                getDouble(f.get("foto-superior").get("densidad"));
+
+        double lateralDerecha =
+                getDouble(f.get("foto-lateral-derecha").get("densidad"));
+
+        double lateralIzquierda =
+                getDouble(f.get("foto-lateral-izquierda").get("densidad"));
+
+        double densidadMedia =
+                (frontal + superior + lateralDerecha + lateralIzquierda) / 4.0;
+
+        double densidadLaterales =
+                (lateralDerecha + lateralIzquierda) / 2.0;
+
+        double ratioEntradas =
+                frontal / Math.max(densidadLaterales, 0.01);
+
+        String entradas;
+
+        if (ratioEntradas < 0.70) {
+            entradas = "marcadas";
+        } else if (ratioEntradas < 0.90) {
+            entradas = "leves";
+        } else {
+            entradas = "no_visibles";
         }
 
-        double densidadMedia = media(
-                f.get("foto-frontal").get("densidad"),
-                f.get("foto-superior").get("densidad"),
-                f.get("foto-lateral-derecha").get("densidad"),
-                f.get("foto-lateral-izquierda").get("densidad")
-        );
+        double ratioCoronilla =
+                superior / Math.max(densidadMedia, 0.01);
 
-        double densidadFrontal = getDouble(f.get("foto-frontal").get("densidad"));
-        double densidadLaterales = media(
-                f.get("foto-lateral-derecha").get("densidad"),
-                f.get("foto-lateral-izquierda").get("densidad")
-        );
+        String coronilla;
 
-        String entradas = densidadFrontal < densidadLaterales * 0.75 ? "marcadas" :
-                          densidadFrontal < densidadLaterales * 0.9 ? "leves" : "no_visibles";
-
-        double densidadCoronilla = getDouble(f.get("foto-superior").get("densidad"));
-        String coronilla = densidadCoronilla < 0.25 ? "despoblada" :
-                           densidadCoronilla < 0.45 ? "media" : "normal";
+        if (ratioCoronilla < 0.70) {
+            coronilla = "alta";
+        } else if (ratioCoronilla < 0.90) {
+            coronilla = "media";
+        } else {
+            coronilla = "baja";
+        }
 
         double contrasteMedio = media(
                 f.get("foto-frontal").get("contraste"),
@@ -146,8 +166,15 @@ public class AnalysisController {
                 f.get("foto-lateral-izquierda").get("contraste")
         );
 
-        String miniaturizacion = contrasteMedio < 10 ? "alta" :
-                                 contrasteMedio < 20 ? "moderada" : "baja";
+        String miniaturizacion;
+
+        if (contrasteMedio < 12) {
+            miniaturizacion = "alta";
+        } else if (contrasteMedio < 25) {
+            miniaturizacion = "moderada";
+        } else {
+            miniaturizacion = "baja";
+        }
 
         double brilloMedio = media(
                 f.get("foto-frontal").get("brillo"),
@@ -156,8 +183,15 @@ public class AnalysisController {
                 f.get("foto-lateral-izquierda").get("brillo")
         );
 
-        String grasa = brilloMedio > 150 ? "alta" :
-                       brilloMedio > 110 ? "media" : "baja";
+        String grasa;
+
+        if (brilloMedio > 170) {
+            grasa = "alta";
+        } else if (brilloMedio > 120) {
+            grasa = "media";
+        } else {
+            grasa = "baja";
+        }
 
         double rojezMedia = media(
                 f.get("foto-frontal").get("rojez"),
@@ -166,16 +200,21 @@ public class AnalysisController {
                 f.get("foto-lateral-izquierda").get("rojez")
         );
 
-        String irritacion = rojezMedia > 150 ? "alta" :
-                            rojezMedia > 110 ? "media" : "baja";
+        String irritacion;
 
-        String colorFrontal = (String) f.get("foto-frontal").get("color");
-        String colorSuperior = (String) f.get("foto-superior").get("color");
-        String colorDerecha = (String) f.get("foto-lateral-derecha").get("color");
-        String colorIzquierda = (String) f.get("foto-lateral-izquierda").get("color");
+        if (rojezMedia > 35) {
+            irritacion = "alta";
+        } else if (rojezMedia > 15) {
+            irritacion = "media";
+        } else {
+            irritacion = "baja";
+        }
 
         String colorGlobal = determinarColorGlobal(
-                colorFrontal, colorSuperior, colorDerecha, colorIzquierda
+                (String) f.get("foto-frontal").get("color"),
+                (String) f.get("foto-superior").get("color"),
+                (String) f.get("foto-lateral-derecha").get("color"),
+                (String) f.get("foto-lateral-izquierda").get("color")
         );
 
         r.put("densidad_media", densidadMedia);

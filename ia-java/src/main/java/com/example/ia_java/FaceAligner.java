@@ -36,23 +36,29 @@ public class FaceAligner {
                 newFace.y + newFace.height / 2.0
         );
 
+        /*
+         * Escala basada en ancho facial.
+         * Más estable que usar área.
+         */
         double scale =
-        Math.sqrt(
-            (double)(refFace.width * refFace.height) /
-            (newFace.width * newFace.height)
-        );
+                (double) refFace.width /
+                (double) newFace.width;
 
-        double tx = refCenter.x - scale * newCenter.x;
-        double ty = refCenter.y - scale * newCenter.y;
+        /*
+         * Traslación para que los centros coincidan.
+         */
+        double tx =
+                refCenter.x - (newCenter.x * scale);
 
-        Mat transform = new Mat(2, 3, CvType.CV_64F);
+        double ty =
+                refCenter.y - (newCenter.y * scale);
+
+        Mat transform = Mat.eye(2, 3, CvType.CV_64F);
 
         transform.put(0, 0, scale);
-        transform.put(0, 1, 0);
-        transform.put(0, 2, tx);
-
-        transform.put(1, 0, 0);
         transform.put(1, 1, scale);
+
+        transform.put(0, 2, tx);
         transform.put(1, 2, ty);
 
         Mat aligned = new Mat();
@@ -62,28 +68,33 @@ public class FaceAligner {
                 aligned,
                 transform,
                 referencia.size(),
-                Imgproc.INTER_LANCZOS4,
+                Imgproc.INTER_CUBIC,
                 Core.BORDER_REPLICATE
         );
+
+        mejorarNitidez(aligned);
+
+        return aligned;
+    }
+
+    private void mejorarNitidez(Mat image) {
 
         Mat blur = new Mat();
 
         Imgproc.GaussianBlur(
-                aligned,
+                image,
                 blur,
                 new Size(0, 0),
-                1.5
+                1.0
         );
 
         Core.addWeighted(
-                aligned,
-                1.2,
+                image,
+                1.15,
                 blur,
-                -0.2,
+                -0.15,
                 0,
-                aligned
+                image
         );
-
-        return aligned;
     }
 }

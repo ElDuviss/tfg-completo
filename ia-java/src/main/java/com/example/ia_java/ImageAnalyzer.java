@@ -1,125 +1,223 @@
 package com.example.ia_java;
 
-import java.util.*;
-import org.opencv.core.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.opencv.core.Core;
+import org.opencv.core.CvType;
+import org.opencv.core.Mat;
+import org.opencv.core.MatOfDouble;
+import org.opencv.core.Rect;
+import org.opencv.core.Scalar;
+import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
 public class ImageAnalyzer {
-
     public Map<String, Object> analizarImagen(String base64) {
+
         Map<String, Object> r = new HashMap<>();
 
-        Mat img;
         try {
-            img = ImageUtils.base64ToMatDirect(base64);
+
+            Mat img = ImageUtils.base64ToMatDirect(base64);
+
+            Rect face = FaceDetector.detectFace(img);
+
+            if (face == null) {
+                r.put("error", "No se detectó rostro");
+                return r;
+            }
+
+            Rect hairRegion = obtenerRegionCabello(face, img);
+
+            Mat hair = new Mat(img, hairRegion);
+
+            Mat hairMask = generarMascaraCabello(hair);
+
+            double densidad = calcularDensidad(hairMask);
+
+            double brillo = calcularBrillo(hair, hairMask);
+
+            double rojez = calcularRojez(hair, hairMask);
+
+            double contraste = calcularContraste(hair, hairMask);
+
+            String color = detectarColorCabello(hair, hairMask);
+
+            r.put("densidad", densidad);
+            r.put("brillo", brillo);
+            r.put("rojez", rojez);
+            r.put("contraste", contraste);
+            r.put("color", color);
+
+            return r;
+
         } catch (Exception e) {
-            r.put("error", "No se pudo decodificar la imagen: " + e.getMessage());
+
+            r.clear();
+            r.put("error", e.getMessage());
+
             return r;
         }
+    }
+
+    private Rect obtenerRegionCabello(Rect face, Mat img) {
+
+        int hairHeight = (int)(face.height * 0.8);
+
+        int x = Math.max(face.x, 0);
+
+        int y = Math.max(face.y - hairHeight, 0);
+
+        int width = Math.min(face.width, img.cols() - x);
+
+        int height = Math.min(hairHeight, img.rows() - y);
+
+        return new Rect(x, y, width, height);
+    }
+
+    private Mat generarMascaraCabello(Mat hair) {
+
+        Mat hsv = new Mat();
+
+        Imgproc.cvtColor(hair, hsv, Imgproc.COLOR_BGR2HSV);
+
+        Mat maskOscura = new Mat();
+
+        Core.inRange(
+                hsv,
+                new Scalar(0, 20, 0),
+                new Scalar(180, 255, 180),
+                maskOscura
+        );
+
+        Mat kernel = Imgproc.getStructuringElement(
+                Imgproc.MORPH_ELLIPSE,
+                new Size(7,7)
+        );
+
+        Imgproc.morphologyEx(
+                maskOscura,
+                maskOscura,
+                Imgproc.MORPH_CLOSE,
+                kernel
+        );
+
+        Imgproc.morphologyEx(
+                maskOscura,
+                maskOscura,
+                Imgproc.MORPH_OPEN,
+                kernel
+        );
+
+        return maskOscura;
+    }
+
+    private double calcularDensidad(Mat mask) {
+
+        double hairPixels = Core.countNonZero(mask);
+
+        double totalPixels = mask.rows() * mask.cols();
+
+        if (totalPixels == 0) {
+            return 0;
+        }
+
+        return hairPixels / totalPixels;
+    }
+
+    private double calcularBrillo(Mat hair, Mat mask) {
 
         Mat gray = new Mat();
-        Imgproc.cvtColor(img, gray, Imgproc.COLOR_BGR2GRAY);
-        Imgproc.GaussianBlur(gray, gray, new Size(5,5), 0);
 
-        double densidad = calcularDensidad(gray);
-        double brillo = Core.mean(gray).val[0];
-        double rojez = calcularRojez(img);
-        double contraste = calcularContraste(gray);
-        String color = detectarColorCabello(img);
+        Imgproc.cvtColor(hair, gray, Imgproc.COLOR_BGR2GRAY);
 
-        r.put("densidad", densidad);
-        r.put("brillo", brillo);
-        r.put("rojez", rojez);
-        r.put("contraste", contraste);
-        r.put("color", color);
-
-        return r;
+        return Core.mean(gray, mask).val[0];
     }
 
-    private double calcularDensidad(Mat gray) {
-        Mat bin = new Mat();
-        Imgproc.threshold(gray, bin, 90, 255, Imgproc.THRESH_BINARY_INV);
-        double negros = Core.countNonZero(bin);
-        double total = gray.rows() * gray.cols();
-        return total == 0 ? 0 : negros / total;
-    }
+    private double calcularRojez(Mat hair, Mat mask) {
 
-    private double calcularRojez(Mat img) {
         List<Mat> canales = new ArrayList<>();
-        Core.split(img, canales);
-        Mat r = canales.get(2);
-        return Core.mean(r).val[0];
+
+        Core.split(hair, canales);
+
+        double rojo = Core.mean(canales.get(2), mask).val[0];
+
+        double verde = Core.mean(canales.get(1), mask).val[0];
+
+        return rojo - verde;
     }
 
-    private double calcularContraste(Mat gray) {
+    private double calcularContraste(Mat hair, Mat mask) {
+
+        Mat gray = new Mat();
+
+        Imgproc.cvtColor(hair, gray, Imgproc.COLOR_BGR2GRAY);
+
         Mat lap = new Mat();
-        Imgproc.Laplacian(gray, lap, CvType.CV_64F);
+
+        Imgproc.Laplacian(
+                gray,
+                lap,
+                CvType.CV_64F
+        );
+
         MatOfDouble mean = new MatOfDouble();
+
         MatOfDouble std = new MatOfDouble();
-        Core.meanStdDev(lap, mean, std);
+
+        Core.meanStdDev(
+                lap,
+                mean,
+                std,
+                mask
+        );
+
         return std.get(0,0)[0];
     }
 
-    private String detectarColorCabello(Mat img) {
+    private String detectarColorCabello(Mat hair, Mat mask) {
 
         Mat hsv = new Mat();
-        Imgproc.cvtColor(img, hsv, Imgproc.COLOR_BGR2HSV);
 
-        List<Mat> canales = new ArrayList<>();
-        Core.split(hsv, canales);
-        Mat v = canales.get(2);
+        Imgproc.cvtColor(
+                hair,
+                hsv,
+                Imgproc.COLOR_BGR2HSV
+        );
 
-        Mat mask = new Mat();
-        Imgproc.threshold(v, mask, 120, 255, Imgproc.THRESH_BINARY_INV);
+        Scalar media = Core.mean(
+                hsv,
+                mask
+        );
 
-        Scalar media = Core.mean(img, mask);
+        double H = media.val[0];
+        double S = media.val[1];
+        double V = media.val[2];
 
-        double r = media.val[2];
-        double g = media.val[1];
-        double b = media.val[0];
+        if (V < 45)
+            return "negro";
 
-        if (r < 80 && g < 70 && b < 70) return "negro";
-        if (r < 120 && g < 100) return "castaño oscuro";
-        if (r < 170 && g < 150) return "castaño claro";
-        if (r > 180 && g > 160) return "rubio";
-        if (r > 160 && g < 120) return "pelirrojo";
+        if (V < 90)
+            return "castaño oscuro";
 
-        Mat color = new Mat(1, 1, CvType.CV_8UC3, new Scalar(b, g, r));
-        Mat colorHSV = new Mat();
-        Imgproc.cvtColor(color, colorHSV, Imgproc.COLOR_BGR2HSV);
+        if (V < 140)
+            return "castaño";
 
-        double H = colorHSV.get(0, 0)[0];
-        double S = colorHSV.get(0, 0)[1];
-        double V = colorHSV.get(0, 0)[2];
+        if (H < 18 && S > 90)
+            return "pelirrojo";
 
-        if (V < 40) return "negro";
-        if (S < 30 && V > 180) return "blanco";
-        if (S < 30 && V > 120) return "gris";
+        if (V > 180 && S < 50)
+            return "rubio ceniza";
 
-        if (H < 20 && V < 90) return "castaño oscuro";
-        if (H < 25 && V < 130) return "castaño medio";
-        if (H < 30 && V < 160) return "castaño claro";
+        if (V > 160)
+            return "rubio";
 
-        if (H < 22 && S > 80 && V > 120) return "castaño chocolate";
-        if (H < 28 && S > 60 && V > 150) return "castaño miel";
-
-        if (H >= 20 && H < 35 && V > 160 && S < 80) return "rubio ceniza";
-        if (H >= 20 && H < 35 && V > 160 && S >= 80) return "rubio dorado";
-        if (H >= 20 && H < 35 && V > 130) return "rubio";
-        if (H >= 20 && H < 35 && V <= 130) return "rubio oscuro";
-
-        if (H < 15 && S > 150) return "rojo intenso";
-        if (H < 20 && S > 120) return "pelirrojo";
-        if (H < 20 && S > 80) return "cobrizo";
-
-        if (H >= 35 && H < 85) return "verde esmeralda";
-        if (H >= 85 && H < 110) return "azul marino";
-        if (H >= 110 && H < 130) return "azul pastel";
-        if (H >= 130 && H < 150) return "morado";
-        if (H >= 150 && H < 165) return "rosa fucsia";
-        if (H >= 165 && H < 175) return "rosa pastel";
+        if (S < 25 && V > 180)
+            return "gris";
 
         return "indeterminado";
     }
-
 }
