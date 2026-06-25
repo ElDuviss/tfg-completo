@@ -11,43 +11,24 @@ class Evolution extends Tags
 {
     public function historial()
     {
-        $userId = session('usuario_id');
+        try {
 
-        if (!$userId) {
-            Log::warning("EVOLUTION TAG → No hay usuario en sesión");
-            return [];
-        }
+            $userId = session('usuario_id');
 
-        $datofotos = Datofoto::where('user_id', $userId)
-            ->orderBy('created_at', 'asc')
-            ->get();
-
-        if ($datofotos->isEmpty()) {
-            return [];
-        }
-
-        $historial = [];
-
-        foreach ($datofotos as $df) {
-
-            $jsonPath = $df->archivo_json;
-
-            if (!$jsonPath || !Storage::exists($jsonPath)) {
-                Log::warning("EVOLUTION TAG → Archivo JSON no encontrado", [
-                    'path' => $jsonPath
-                ]);
-                continue;
+            if (!$userId) {
+                Log::warning("EVOLUTION TAG → No hay usuario en sesión");
+                return [];
             }
 
-            $jsonContent = Storage::get($jsonPath);
-            $json = json_decode($jsonContent, true);
+            $datofotos = Datofoto::where('user_id', $userId)
+                ->orderBy('created_at', 'asc')
+                ->get();
 
-            if (!$json) {
-                Log::error("EVOLUTION TAG → Error al decodificar JSON", [
-                    'path' => $jsonPath
-                ]);
-                continue;
+            if ($datofotos->isEmpty()) {
+                return [];
             }
+
+            $historial = [];
 
             $map = [
                 'baja' => 1,
@@ -58,17 +39,74 @@ class Evolution extends Tags
                 'marcadas' => 3
             ];
 
-            $historial[] = [
-                'fecha' => $df->created_at->format('Y-m-d'),
-                'miniaturizacion' => $map[$json['miniaturizacion']] ?? 0,
-                'densidad_media' => floatval($json['densidad_media'] ?? 0),
-                'coronilla' => $map[$json['coronilla']] ?? 0,
-                'grasa' => $map[$json['grasa']] ?? 0,
-                'entradas' => $map[$json['entradas']] ?? 0,
-                'irritacion' => $map[$json['irritacion']] ?? 0,
-            ];
-        }
+            foreach ($datofotos as $df) {
 
-        return $historial;
+                if (!$df->archivo_json) {
+                    Log::warning("EVOLUTION TAG → archivo_json vacío", [
+                        'datofoto_id' => $df->id
+                    ]);
+                    continue;
+                }
+
+                if (!Storage::exists($df->archivo_json)) {
+                    Log::warning("EVOLUTION TAG → Archivo JSON no encontrado", [
+                        'path' => $df->archivo_json
+                    ]);
+                    continue;
+                }
+
+                $jsonContent = Storage::get($df->archivo_json);
+
+                if ($jsonContent === false) {
+                    Log::warning("EVOLUTION TAG → No se pudo leer archivo", [
+                        'path' => $df->archivo_json
+                    ]);
+                    continue;
+                }
+
+                $json = json_decode($jsonContent, true);
+
+                if (!is_array($json)) {
+                    Log::error("EVOLUTION TAG → Error al decodificar JSON", [
+                        'path' => $df->archivo_json
+                    ]);
+                    continue;
+                }
+
+                $historial[] = [
+                    'fecha' => optional($df->created_at)->format('Y-m-d'),
+
+                    'miniaturizacion' =>
+                        $map[$json['miniaturizacion'] ?? null] ?? 0,
+
+                    'densidad_media' =>
+                        floatval($json['densidad_media'] ?? 0),
+
+                    'coronilla' =>
+                        $map[$json['coronilla'] ?? null] ?? 0,
+
+                    'grasa' =>
+                        $map[$json['grasa'] ?? null] ?? 0,
+
+                    'entradas' =>
+                        $map[$json['entradas'] ?? null] ?? 0,
+
+                    'irritacion' =>
+                        $map[$json['irritacion'] ?? null] ?? 0,
+                ];
+            }
+
+            return $historial;
+
+        } catch (\Exception $e) {
+
+            Log::error("EVOLUTION TAG → Error general", [
+                'message' => $e->getMessage(),
+                'line' => $e->getLine(),
+                'file' => $e->getFile()
+            ]);
+
+            return [];
+        }
     }
 }

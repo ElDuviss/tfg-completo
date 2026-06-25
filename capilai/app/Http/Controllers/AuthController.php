@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Usuario;
+use App\Models\Cuestionario;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
-use App\Models\Cuestionario;
 
 class AuthController extends Controller
 {
@@ -19,40 +19,91 @@ class AuthController extends Controller
     public function handleGoogleCallback()
     {
         try {
+
             $googleUser = Socialite::driver('google')->user();
-        } catch (\Exception $e) {
-            return redirect('/')->with('login_error', 'Error al iniciar sesión con Google.');
-        }
 
-        $usuario = Usuario::where('email', $googleUser->getEmail())->first();
+            if (!$googleUser->getEmail()) {
 
-        if (! $usuario) {
+                Log::warning('Google OAuth sin email');
 
-            $baseUsername = Str::slug($googleUser->getName());
-            $username = $baseUsername;
-            $contador = 1;
-
-            while (Usuario::where('username', $username)->exists()) {
-                $username = $baseUsername . '-' . $contador;
-                $contador++;
+                return redirect('/')
+                    ->with(
+                        'login_error',
+                        'No se pudo obtener el correo electrónico de Google.'
+                    );
             }
 
-            $usuario = Usuario::create([
-                'email' => $googleUser->getEmail(),
-                'username' => $username,
-                'password' => Hash::make(Str::random(16)),
+            $usuario = Usuario::where(
+                'email',
+                $googleUser->getEmail()
+            )->first();
+
+            if (!$usuario) {
+
+                $baseUsername = Str::slug($googleUser->getName());
+
+                if (empty($baseUsername)) {
+                    $baseUsername = 'usuario';
+                }
+
+                $username = $baseUsername;
+                $contador = 1;
+
+                while (
+                    Usuario::where('username', $username)->exists()
+                ) {
+                    $username = $baseUsername . '-' . $contador;
+                    $contador++;
+                }
+
+                $usuario = Usuario::create([
+                    'email'    => $googleUser->getEmail(),
+                    'username' => $username,
+                    'password' => Hash::make(Str::random(16)),
+                ]);
+
+                if (!$usuario) {
+
+                    Log::error('Error creando usuario OAuth', [
+                        'email' => $googleUser->getEmail(),
+                    ]);
+
+                    return redirect('/')
+                        ->with(
+                            'login_error',
+                            'No se pudo crear la cuenta.'
+                        );
+                }
+            }
+
+            session([
+                'usuario_id' => $usuario->id
             ]);
+
+            $tieneCuestionario = Cuestionario::where(
+                'user_id',
+                $usuario->id
+            )->exists();
+
+            if ($tieneCuestionario) {
+                return redirect('/analysis/menu_analysis');
+            }
+
+            return redirect('/questionaire');
+
+        } catch (\Exception $e) {
+
+            Log::error('Error OAuth Google', [
+                'message' => $e->getMessage(),
+                'line'    => $e->getLine(),
+                'file'    => $e->getFile(),
+            ]);
+
+            return redirect('/')
+                ->with(
+                    'login_error',
+                    'Error al iniciar sesión con Google.'
+                );
         }
-
-        session(['usuario_id' => $usuario->id]);
-
-        $cuestionario = Cuestionario::where('user_id', $usuario->id)->first();
-
-        if ($cuestionario) {
-            return redirect('/analysis/menu_analysis');
-        }
-
-        return redirect('/questionaire');
     }
-
 }
