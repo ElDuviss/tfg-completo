@@ -13,8 +13,8 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('datofoto_nuevo_id');
             $table->unsignedBigInteger('datofoto_antiguo_id');
-            $table->unsignedBigInteger('cuestionario_nuevo_id')->nullable();
-            $table->unsignedBigInteger('cuestionario_antiguo_id')->nullable();
+            $table->unsignedBigInteger('cuestionario_nuevo_id');
+            $table->unsignedBigInteger('cuestionario_antiguo_id');
             $table->unique(['datofoto_nuevo_id', 'datofoto_antiguo_id']);
             $table->unique(['cuestionario_nuevo_id', 'cuestionario_antiguo_id']);
             $table->text('comparison_text');
@@ -39,12 +39,12 @@ return new class extends Migration
             $table->foreign('cuestionario_nuevo_id')
                 ->references('id')
                 ->on('cuestionarios')
-                ->onDelete('set null');
+                ->onDelete('cascade');
 
             $table->foreign('cuestionario_antiguo_id')
                 ->references('id')
                 ->on('cuestionarios')
-                ->onDelete('set null');
+                ->onDelete('cascade');
 
         });
     }

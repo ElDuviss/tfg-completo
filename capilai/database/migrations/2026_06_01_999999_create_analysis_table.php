@@ -21,17 +21,17 @@ return new class extends Migration
             $table->foreign('user_id')
                 ->references('id')
                 ->on('usuarios')
-                ->nullOnDelete();
+                ->onDelete('set null');
 
             $table->foreign('cuestionario_id')
                 ->references('id')
                 ->on('cuestionarios')
-                ->nullOnDelete();
+                ->onDelete('cascade');
 
             $table->foreign('datofoto_id')
                 ->references('id')
                 ->on('datofotos')
-                ->nullOnDelete();
+                ->onDelete('cascade');
         });
     }
 

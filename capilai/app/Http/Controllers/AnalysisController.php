@@ -214,14 +214,36 @@ class AnalysisController extends Controller
                 ->with('error', 'El usuario no existe.');
         }
 
+        $analysisDirs = Storage::disk('local')->directories('analysis');
+
+        foreach ($analysisDirs as $dir) {
+            if ($dir !== 'analysis/Respuestas') {
+                Storage::disk('local')->deleteDirectory($dir);
+            }
+        }
+        
+        $carpetasRaiz = Storage::disk('local')->directories();
+
+        $conservar = [
+            'analysis',
+            'cuestionarios',
+            'datofotos',
+        ];
+
+        foreach ($carpetasRaiz as $carpeta) {
+            if (!in_array($carpeta, $conservar)) {
+                Storage::disk('local')->deleteDirectory($carpeta);
+            }
+        }
+
         $usuario->delete();
 
         auth()->logout();
-
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
         return redirect('/')
             ->with('success', 'Cuenta eliminada correctamente.');
     }
+
 }

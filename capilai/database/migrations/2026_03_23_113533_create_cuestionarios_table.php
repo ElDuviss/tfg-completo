@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::create('cuestionarios', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id'); 
+            $table->unsignedBigInteger('user_id')->nullable(); 
             $table->string('archivo_json');
             $table->timestamps();
 
-            $table->foreign('user_id')->references('id')->on('usuarios')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('usuarios')->onDelete('set null');
         });
     }
 

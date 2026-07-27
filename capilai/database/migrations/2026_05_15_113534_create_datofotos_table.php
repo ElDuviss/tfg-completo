@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('datofotos', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('user_id')->nullable();
             $table->string('archivo_json');
             $table->unsignedBigInteger('foto_frontal_id')->nullable();
             $table->unsignedBigInteger('foto_superior_id')->nullable();
@@ -24,7 +24,7 @@ return new class extends Migration
             $table->foreign('user_id')
                 ->references('id')
                 ->on('usuarios')
-                ->onDelete('cascade');
+                ->onDelete('set null');
 
             $table->foreign('foto_frontal_id')
                 ->references('id')
