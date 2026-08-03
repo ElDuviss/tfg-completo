@@ -197,26 +197,67 @@ public class ImageAnalyzer {
         double S = media.val[1];
         double V = media.val[2];
 
+        if (S < 25) {
+            if (V < 45)
+                return "negro";
+            if (V < 120)
+                return "gris";
+            return "blanco";
+        }
+
         if (V < 45)
             return "negro";
 
-        if (V < 90)
+        if (V < 75)
+            return "castaño muy oscuro";
+
+        if (V < 100)
             return "castaño oscuro";
 
         if (V < 140)
             return "castaño";
 
-        if (H < 18 && S > 90)
+        if (V < 170 && H >= 10 && H <= 25)
+            return "castaño claro";
+
+        if ((H >= 0 && H <= 10) && S > 90)
             return "pelirrojo";
 
-        if (V > 180 && S < 50)
+        if ((H > 10 && H <= 18) && S > 100)
+            return "cobrizo";
+
+        if (V > 200 && S < 40)
+            return "rubio platino";
+
+        if (V > 180 && S < 60)
             return "rubio ceniza";
 
-        if (V > 160)
+        if (V > 170)
             return "rubio";
 
-        if (S < 25 && V > 180)
-            return "gris";
+        if (H >= 20 && H < 35)
+            return "amarillo";
+
+        if (H >= 35 && H < 50)
+            return "dorado";
+
+        if (H >= 50 && H < 80)
+            return "verde";
+
+        if (H >= 80 && H < 100)
+            return "turquesa";
+
+        if (H >= 100 && H < 130)
+            return "azul";
+
+        if (H >= 130 && H < 145)
+            return "violeta";
+
+        if (H >= 145 && H < 165)
+            return "morado";
+
+        if (H >= 165 || H < 5)
+            return "rosa";
 
         return "indeterminado";
     }

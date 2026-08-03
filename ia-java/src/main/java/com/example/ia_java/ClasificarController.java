@@ -50,7 +50,7 @@ public class ClasificarController {
 
         } catch (Exception e) {
 
-            System.out.println("🔥 ERROR CONTROLADO:");
+            System.out.println("ERROR CONTROLADO:");
             e.printStackTrace();
 
             resp.put("ok", false);

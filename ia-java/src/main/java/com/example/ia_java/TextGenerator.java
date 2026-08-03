@@ -77,7 +77,7 @@ public class TextGenerator {
 
         String body = """
         {
-          "model": "meta-llama/llama-4-scout-17b-16e-instruct",
+          "model": "openai/gpt-oss-120b",
           "messages": [
             { "role": "system", "content": "Eres un experto en salud capilar y dermatología." },
             { "role": "user", "content": "%s" }
