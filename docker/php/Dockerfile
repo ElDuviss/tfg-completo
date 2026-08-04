@@ -1,33 +1,53 @@
 FROM php:8.4-cli
 
-# PHP dependencias
+# Dependencias del sistema
 RUN apt-get update && apt-get install -y \
-    zip unzip git curl libpng-dev libonig-dev libxml2-dev
+    git \
+    curl \
+    unzip \
+    zip \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    && docker-php-ext-install pdo pdo_mysql mbstring gd \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN docker-php-ext-install pdo pdo_mysql mbstring gd
+# Instalar Node.js 20
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs
 
-# Instalar Node.js
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
-RUN apt-get install -y nodejs
+# Composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-# Composer
-RUN curl -sS https://getcomposer.org/installer | php -- \
-    --install-dir=/usr/local/bin \
-    --filename=composer
-
+# Copiar proyecto
 COPY capilai/ .
 
-# Dependencias PHP
-RUN composer install --no-dev --optimize-autoloader
+# Instalar dependencias PHP
+RUN composer install \
+    --no-dev \
+    --optimize-autoloader \
+    --no-interaction
 
-# Dependencias Node
+# Instalar dependencias JS
 RUN npm install
 
-# Generar build de Vite
+# Compilar Vite
 RUN npm run build
+
+# Permisos
+RUN chmod -R 775 storage bootstrap/cache || true
+
+# Limpiar cualquier caché generada durante el build
+RUN php artisan optimize:clear || true
 
 EXPOSE 10000
 
-CMD php artisan serve --host=0.0.0.0 --port=$PORT
+CMD php artisan optimize:clear && \
+    php artisan config:clear && \
+    php artisan cache:clear && \
+    php artisan route:clear && \
+    php artisan view:clear && \
+    php artisan serve --host=0.0.0.0 --port=${PORT:-10000}
