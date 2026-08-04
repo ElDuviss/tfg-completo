@@ -44,3 +44,19 @@ Route::statamic('/analysis/evolution', '/analysis/evolution');
 
 Route::post('/comparison/run', [ComparisonController::class, 'compare']);
 
+use Illuminate\Support\Facades\DB;
+
+Route::get('/test-db', function () {
+    try {
+        DB::connection()->getPdo();
+
+        return DB::select('SELECT DATABASE() AS db');
+
+    } catch (\Throwable $e) {
+
+        return response()->json([
+            'error' => $e->getMessage()
+        ], 500);
+
+    }
+});
