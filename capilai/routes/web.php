@@ -75,3 +75,34 @@ Route::get('/db-config', function () {
         'password_length' => strlen(env('DB_PASSWORD') ?? ''),
     ]);
 });
+
+Route::get('/db-raw', function () {
+    try {
+        $pdo = new PDO(
+            sprintf(
+                'mysql:host=%s;port=%s;dbname=%s;charset=utf8mb4',
+                config('database.connections.mysql.host'),
+                config('database.connections.mysql.port'),
+                config('database.connections.mysql.database')
+            ),
+            config('database.connections.mysql.username'),
+            config('database.connections.mysql.password')
+        );
+
+        return response()->json([
+            'ok' => true,
+            'server' => $pdo->query('SELECT VERSION()')->fetchColumn(),
+        ]);
+    } catch (\Throwable $e) {
+        return response()->json([
+            'ok' => false,
+            'error' => $e->getMessage(),
+            'host' => config('database.connections.mysql.host'),
+            'port' => config('database.connections.mysql.port'),
+            'database' => config('database.connections.mysql.database'),
+            'username' => config('database.connections.mysql.username'),
+            'password_length' => strlen((string) config('database.connections.mysql.password')),
+            'password_md5' => md5((string) config('database.connections.mysql.password')),
+        ]);
+    }
+});
