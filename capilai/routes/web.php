@@ -46,19 +46,24 @@ Route::post('/comparison/run', [ComparisonController::class, 'compare']);
 
 use Illuminate\Support\Facades\DB;
 
-Route::get('/test-db', function () {
+Route::get('/db-test', function () {
+
     try {
-        DB::connection()->getPdo();
 
-        return DB::select('SELECT DATABASE() AS db');
+        $pdo = new PDO(
+            "mysql:host=altaria.proxy.rlwy.net;port=44181;dbname=railway",
+            "root",
+            "AQUI_PONES_LA_CONTRASEÑA_EXACTA_DE_RAILWAY"
+        );
 
-    } catch (\Throwable $e) {
+        return "Conexión OK";
 
-        return response()->json([
-            'error' => $e->getMessage()
-        ], 500);
+    } catch (Throwable $e) {
+
+        return $e->getMessage();
 
     }
+
 });
 
 Route::get('/db-config', function () {
