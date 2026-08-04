@@ -60,3 +60,13 @@ Route::get('/test-db', function () {
 
     }
 });
+
+Route::get('/db-config', function () {
+    return response()->json([
+        'host' => env('DB_HOST'),
+        'port' => env('DB_PORT'),
+        'database' => env('DB_DATABASE'),
+        'username' => env('DB_USERNAME'),
+        'password_length' => strlen(env('DB_PASSWORD') ?? ''),
+    ]);
+});
