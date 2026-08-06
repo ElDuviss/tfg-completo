@@ -6,5 +6,12 @@ ENV PORT=5678
 ENV N8N_SECURE_COOKIE=false
 
 COPY workflows /home/node/workflows
+COPY start.sh /home/node/start.sh
+
+USER root
+RUN chmod +x /home/node/start.sh
+USER node
 
 EXPOSE 5678
+
+CMD ["/home/node/start.sh"]
