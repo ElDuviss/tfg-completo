@@ -1,0 +1,91 @@
+{
+  "name": "comparacionImagenes",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "comparacion",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "fcea040e-8667-43f8-89fd-05a77f990a08",
+      "name": "Webhook",
+      "webhookId": "74701a42-8589-4e2f-bcf2-a68b481f492f"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://capilai-ia-java:8080/comparacion",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n\t\"datofoto_nuevo\": {\n        \t\"color_cabello\": \"{{ $json.body['datofoto_nuevo']['color_cabello'] }}\",\n    \t\t\"miniaturizacion\": \"{{ $json.body['datofoto_nuevo']['miniaturizacion'] }}\",\n    \t\t\"densidad_media\": \"{{ $json.body['datofoto_nuevo']['densidad_media'] }}\",\n    \t\t\"coronilla\": \"{{ $json.body['datofoto_nuevo']['coronilla'] }}\",\n    \t\t\"grasa\": \"{{ $json.body['datofoto_nuevo']['grasa'] }}\",\n    \t\t\"entradas\": \"{{ $json.body['datofoto_nuevo']['entradas'] }}\",\n    \t\t\"irritacion\": \"{{ $json.body['datofoto_nuevo']['irritacion'] }}\"\n  \t},\n\n\t\"datofoto_antiguo\": {\n        \t\"color_cabello\": \"{{ $json.body['datofoto_antiguo']['color_cabello'] }}\",\n    \t\t\"miniaturizacion\": \"{{ $json.body['datofoto_antiguo']['miniaturizacion'] }}\",\n    \t\t\"densidad_media\": \"{{ $json.body['datofoto_antiguo']['densidad_media'] }}\",\n    \t\t\"coronilla\": \"{{ $json.body['datofoto_antiguo']['coronilla'] }}\",\n    \t\t\"grasa\": \"{{ $json.body['datofoto_antiguo']['grasa'] }}\",\n    \t\t\"entradas\": \"{{ $json.body['datofoto_antiguo']['entradas'] }}\",\n    \t\t\"irritacion\": \"{{ $json.body['datofoto_antiguo']['irritacion'] }}\"\n  \t},\n\n\t\"cuestionario_nuevo\": {\n    \t\t\"notas-entradas-mas-marcadas\": \"{{ $json.body[cuestionario_nuevo]['pnotas-entradas-mas-marcadasp'] }}\",\n    \t\t\"notas-perdida-de-densidad-en-la-coronilla\": \"{{ $json.body[cuestionario_nuevo]['pnotas-perdida-de-densidad-en-la-coronillap'] }}\",\n    \t\t\"notas-caida-excesiva-al-ducharte-o-peinarte\": \"{{ $json.body[cuestionario_nuevo]['pnotas-caida-excesiva-al-ducharte-o-peinartep'] }}\",\n    \t\t\"notas-miniaturizacion-pelos-mas-finos\": \"{{ $json.body[cuestionario_nuevo]['pnotas-miniaturizacion-pelos-mas-finosp'] }}\",\n    \t\t\"sexo\": \"{{ $json.body[cuestionario_nuevo]['psexop'] }}\",\n    \t\t\"edad\": \"{{ $json.body[cuestionario_nuevo]['pedadp'] }}\",\n    \t\t\"tienes-antecedentes-familiares-de-calvicie\": \"{{ $json.body[cuestionario_nuevo]['ptienes-antecedentes-familiares-de-calviciep'] }}\",\n    \t\t\"tienes-problemas-hormonales-diagnosticados\": \"{{ $json.body[cuestionario_nuevo]['ptienes-problemas-hormonales-diagnosticadosp'] }}\",\n    \t\t\"tu-cabello-se-rompe-con-facilidad\": \"{{ $json.body[cuestionario_nuevo]['ptu-cabello-se-rompe-con-facilidadp'] }}\",\n    \t\t\"tu-cabello-se-enreda-mucho\": \"{{ $json.body[cuestionario_nuevo]['ptu-cabello-se-enreda-muchop'] }}\",\n    \t\t\"notas-que-tu-cabello-esta-mas-fino-que-antes\": \"{{ $json.body[cuestionario_nuevo]['pnotas-que-tu-cabello-esta-mas-fino-que-antesp'] }}\",\n    \t\t\"nivel-de-estres\": \"{{ $json.body[cuestionario_nuevo]['pnivel-de-estresp'] }}\",\n    \t\t\"calidad-del-sueno\": \"{{ $json.body[cuestionario_nuevo]['pcalidad-del-suenop'] }}\",\n    \t\t\"dieta\": \"{{ $json.body[cuestionario_nuevo]['pdietap'] }}\",\n    \t\t\"actividad-fisica-semanal\": \"{{ $json.body[cuestionario_nuevo]['pactividad-fisica-semanalp'] }}\",\n    \t\t\"exposicion-al-sol\": \"{{ $json.body[cuestionario_nuevo]['pexposicion-al-solp'] }}\",\n    \t\t\"con-que-frecuencia-te-lavas-el-cabello\": \"{{ $json.body[cuestionario_nuevo]['pcon-que-frecuencia-te-lavas-el-cabellop'] }}\",\n    \t\t\"que-tipo-de-champu-usas\": \"{{ $json.body[cuestionario_nuevo]['pque-tipo-de-champu-usasp'] }}\",\n    \t\t\"usas-acondicionador\": \"{{ $json.body[cuestionario_nuevo]['pusas-acondicionadorp'] }}\",\n    \t\t\"usas-aceites-o-serums\": \"{{ $json.body[cuestionario_nuevo]['pusas-aceites-o-serumsp'] }}\",\n    \t\t\"usas-secador-plancha-o-rizador\": \"{{ $json.body[cuestionario_nuevo]['pusas-secador-plancha-o-rizadorp'] }}\",\n    \t\t\"a-que-temperatura-te-duchas-normalmente\": \"{{ $json.body[cuestionario_nuevo]['pa-que-temperatura-te-duchas-normalmentep'] }}\",\n    \t\t\"te-tines-o-decoloras-el-cabello\": \"{{ $json.body[cuestionario_nuevo]['pte-tines-o-decoloras-el-cabellop'] }}\",\n    \t\t\"usas-extensiones-o-peinados-tensos\": \"{{ $json.body[cuestionario_nuevo]['pusas-extensiones-o-peinados-tensosp'] }}\",\n    \t\t\"tienes-picor-en-el-cuero-cabelludo\": \"{{ $json.body[cuestionario_nuevo]['ptienes-picor-en-el-cuero-cabelludop'] }}\",\n    \t\t\"tienes-caspa\": \"{{ $json.body[cuestionario_nuevo]['ptienes-caspap'] }}\",\n    \t\t\"sientes-dolor-al-tocar-el-cuero-cabelludo\": \"{{ $json.body[cuestionario_nuevo]['psientes-dolor-al-tocar-el-cuero-cabelludop'] }}\",\n    \t\t\"tu-cuero-cabelludo-se-engrasa-rapido\": \"{{ $json.body[cuestionario_nuevo]['ptu-cuero-cabelludo-se-engrasa-rapidop'] }}\"\n  \t},\n\n\t\"cuestionario_antiguo\": {\n    \t\t\"notas-entradas-mas-marcadas\": \"{{ $json.body[cuestionario_antiguo]['pnotas-entradas-mas-marcadasp'] }}\",\n    \t\t\"notas-perdida-de-densidad-en-la-coronilla\": \"{{ $json.body[cuestionario_antiguo]['pnotas-perdida-de-densidad-en-la-coronillap'] }}\",\n    \t\t\"notas-caida-excesiva-al-ducharte-o-peinarte\": \"{{ $json.body[cuestionario_antiguo]['pnotas-caida-excesiva-al-ducharte-o-peinartep'] }}\",\n    \t\t\"notas-miniaturizacion-pelos-mas-finos\": \"{{ $json.body[cuestionario_antiguo]['pnotas-miniaturizacion-pelos-mas-finosp'] }}\",\n    \t\t\"sexo\": \"{{ $json.body[cuestionario_antiguo]['psexop'] }}\",\n    \t\t\"edad\": \"{{ $json.body[cuestionario_antiguo]['pedadp'] }}\",\n    \t\t\"tienes-antecedentes-familiares-de-calvicie\": \"{{ $json.body[cuestionario_antiguo]['ptienes-antecedentes-familiares-de-calviciep'] }}\",\n    \t\t\"tienes-problemas-hormonales-diagnosticados\": \"{{ $json.body[cuestionario_antiguo]['ptienes-problemas-hormonales-diagnosticadosp'] }}\",\n    \t\t\"tu-cabello-se-rompe-con-facilidad\": \"{{ $json.body[cuestionario_antiguo]['ptu-cabello-se-rompe-con-facilidadp'] }}\",\n    \t\t\"tu-cabello-se-enreda-mucho\": \"{{ $json.body[cuestionario_antiguo]['ptu-cabello-se-enreda-muchop'] }}\",\n    \t\t\"notas-que-tu-cabello-esta-mas-fino-que-antes\": \"{{ $json.body[cuestionario_antiguo]['pnotas-que-tu-cabello-esta-mas-fino-que-antesp'] }}\",\n    \t\t\"nivel-de-estres\": \"{{ $json.body[cuestionario_antiguo]['pnivel-de-estresp'] }}\",\n    \t\t\"calidad-del-sueno\": \"{{ $json.body[cuestionario_antiguo]['pcalidad-del-suenop'] }}\",\n    \t\t\"dieta\": \"{{ $json.body[cuestionario_antiguo]['pdietap'] }}\",\n    \t\t\"actividad-fisica-semanal\": \"{{ $json.body[cuestionario_antiguo]['pactividad-fisica-semanalp'] }}\",\n    \t\t\"exposicion-al-sol\": \"{{ $json.body[cuestionario_antiguo]['pexposicion-al-solp'] }}\",\n    \t\t\"con-que-frecuencia-te-lavas-el-cabello\": \"{{ $json.body[cuestionario_antiguo]['pcon-que-frecuencia-te-lavas-el-cabellop'] }}\",\n    \t\t\"que-tipo-de-champu-usas\": \"{{ $json.body[cuestionario_antiguo]['pque-tipo-de-champu-usasp'] }}\",\n    \t\t\"usas-acondicionador\": \"{{ $json.body[cuestionario_antiguo]['pusas-acondicionadorp'] }}\",\n    \t\t\"usas-aceites-o-serums\": \"{{ $json.body[cuestionario_antiguo]['pusas-aceites-o-serumsp'] }}\",\n    \t\t\"usas-secador-plancha-o-rizador\": \"{{ $json.body[cuestionario_antiguo]['pusas-secador-plancha-o-rizadorp'] }}\",\n    \t\t\"a-que-temperatura-te-duchas-normalmente\": \"{{ $json.body[cuestionario_antiguo]['pa-que-temperatura-te-duchas-normalmentep'] }}\",\n    \t\t\"te-tines-o-decoloras-el-cabello\": \"{{ $json.body[cuestionario_antiguo]['pte-tines-o-decoloras-el-cabellop'] }}\",\n    \t\t\"usas-extensiones-o-peinados-tensos\": \"{{ $json.body[cuestionario_antiguo]['pusas-extensiones-o-peinados-tensosp'] }}\",\n    \t\t\"tienes-picor-en-el-cuero-cabelludo\": \"{{ $json.body[cuestionario_antiguo]['ptienes-picor-en-el-cuero-cabelludop'] }}\",\n    \t\t\"tienes-caspa\": \"{{ $json.body[cuestionario_antiguo]['ptienes-caspap'] }}\",\n    \t\t\"sientes-dolor-al-tocar-el-cuero-cabelludo\": \"{{ $json.body[cuestionario_antiguo]['psientes-dolor-al-tocar-el-cuero-cabelludop'] }}\",\n    \t\t\"tu-cuero-cabelludo-se-engrasa-rapido\": \"{{ $json.body[cuestionario_antiguo]['ptu-cuero-cabelludo-se-engrasa-rapidop'] }}\"\n  \t}\n\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "8b67a61c-cb4c-4b49-a157-93e366002409",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.texto }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        416,
+        0
+      ],
+      "id": "bd99adef-308b-4e20-a45f-490e0eea3522",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "2960891b-f4d7-4792-b174-4f91f3705adb",
+  "meta": {
+    "instanceId": "5b9b5059b745b8dbf1a4815c89d18f9dd205617a336a6f87672ffd5cceb5e71d"
+  },
+  "id": "D7aDMdRCohsGEdIg",
+  "tags": []
+}

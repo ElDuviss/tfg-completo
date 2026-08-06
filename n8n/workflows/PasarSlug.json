@@ -1,0 +1,69 @@
+{
+  "name": "PasarSlug",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "enviar-datos",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "c2bcadca-8897-40c8-8197-1d29f4b2594f",
+      "name": "Webhook",
+      "webhookId": "10d4f930-023d-440d-b934-ea81efbe40d0"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://capilai-ia-java:8080/recibir",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"slug\": \"{{ $json.body.slug }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "7083d978-9486-4919-9544-96d1869a3280",
+      "name": "HTTP Request"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "20d6c135-27eb-4a6e-997e-1ee33f5f5b68",
+  "meta": {
+    "instanceId": "5b9b5059b745b8dbf1a4815c89d18f9dd205617a336a6f87672ffd5cceb5e71d"
+  },
+  "id": "AbC66NEWroQ9vVtl",
+  "tags": []
+}

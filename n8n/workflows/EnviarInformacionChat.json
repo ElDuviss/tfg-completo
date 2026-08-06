@@ -1,0 +1,91 @@
+{
+  "name": "EnviarInformacionChat",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "preguntar",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "e0879231-727b-4f9e-a026-610c112ec51d",
+      "name": "Webhook",
+      "webhookId": "37698552-c459-4073-88be-47d3e1ee1785"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://capilai-ia-java:8080/ask",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.body }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "e85adb24-799c-4cca-bbf2-fe5cb1b1b898",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.respuesta }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        416,
+        0
+      ],
+      "id": "fa4e65dd-9f47-42bb-8cfc-af240da7c506",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "7fc225db-3ca0-4f12-8c9f-bb37322f9be9",
+  "meta": {
+    "instanceId": "5b9b5059b745b8dbf1a4815c89d18f9dd205617a336a6f87672ffd5cceb5e71d"
+  },
+  "id": "yWAFciEJID8fDlT9",
+  "tags": []
+}

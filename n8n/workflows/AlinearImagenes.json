@@ -1,0 +1,91 @@
+{
+  "name": "AlinearImagenes",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "alinear-foto",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "1afad71a-2d00-49aa-a2f7-6a0c0dd6d15c",
+      "name": "Webhook",
+      "webhookId": "631d990e-e75c-40b7-808c-3ea009a3b8ea"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://capilai-ia-java:8080/alinear-foto",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"foto_1\": \"{{ $json.body.foto_1}}\",\n  \"foto_2\": \"{{ $json.body.foto_2}}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "34d47a6f-b1e0-4ee6-b8f6-9eca38c7b8c3",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"foto_alineada\": \"={{ $json['foto_alineada'] }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        416,
+        0
+      ],
+      "id": "6a406fdc-23ef-4aed-8505-07208b829752",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "741bfc5d-c779-4cfa-93b7-d3c1142d88d4",
+  "meta": {
+    "instanceId": "5b9b5059b745b8dbf1a4815c89d18f9dd205617a336a6f87672ffd5cceb5e71d"
+  },
+  "id": "73Nbc5OPsTOnzqpy",
+  "tags": []
+}

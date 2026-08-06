@@ -1,0 +1,91 @@
+{
+  "name": "EnviarFotos",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "enviar-fotos",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "cd2e2fe9-51cd-4a93-8db0-8bab15e1eb45",
+      "name": "Webhook",
+      "webhookId": "7defe336-ddab-4c39-8799-b0442d292f55"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://capilai-ia-java:8080/recibirfotos",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"slug_foto\": \"{{ $json.body.slug_foto }}\",\n  \"base64\": \"{{ $json.body.base64}}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "6027c6fd-9888-4920-bfe1-67e8a5960421",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n    \"color_cabello\": \"{{ $json['features_globales']['color_cabello'] }}\",\n    \"miniaturizacion\": \"{{ $json['features_globales']['miniaturizacion'] }}\",\n    \"densidad_media\": \"{{ $json['features_globales']['densidad_media'] }}\",\n    \"coronilla\": \"{{ $json['features_globales']['coronilla'] }}\",\n    \"grasa\": \"{{ $json['features_globales']['grasa'] }}\",\n    \"entradas\": \"{{ $json['features_globales']['entradas'] }}\",\n    \"irritacion\": \"{{ $json['features_globales']['irritacion'] }}\"\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        416,
+        0
+      ],
+      "id": "97d8dc46-023d-467b-addf-464c1fe1eb2d",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "5e3681be-b3a5-4ef8-9192-12a63e3dfd05",
+  "meta": {
+    "instanceId": "5b9b5059b745b8dbf1a4815c89d18f9dd205617a336a6f87672ffd5cceb5e71d"
+  },
+  "id": "2UFbGL2VR7FDfUzx",
+  "tags": []
+}

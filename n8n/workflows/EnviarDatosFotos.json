@@ -1,0 +1,64 @@
+{
+  "name": "EnviarDatosFotos",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "datos-imagenes",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "ac742a53-ee8f-463f-813a-cd8ea720456e",
+      "name": "Webhook",
+      "webhookId": "076d54d6-df43-47f0-822e-f83d28a59b28"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://capilai-ia-java:8080/recibirdatosimagenes",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"datos\": {\n        \"color_cabello\": \"{{ $json.body['features_globales']['color_cabello'] }}\",\n    \"miniaturizacion\": \"{{ $json.body['features_globales']['miniaturizacion'] }}\",\n    \"densidad_media\": \"{{ $json.body['features_globales']['densidad_media'] }}\",\n    \"coronilla\": \"{{ $json.body['features_globales']['coronilla'] }}\",\n    \"grasa\": \"{{ $json.body['features_globales']['grasa'] }}\",\n    \"entradas\": \"{{ $json.body['features_globales']['entradas'] }}\",\n    \"irritacion\": \"{{ $json.body['features_globales']['irritacion'] }}\"\n  }\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "46dc06e0-d80c-45c3-83b8-235a15bd9f1a",
+      "name": "HTTP Request"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "5cfdb1cb-9722-4133-8265-0b31c312a36a",
+  "meta": {
+    "instanceId": "5b9b5059b745b8dbf1a4815c89d18f9dd205617a336a6f87672ffd5cceb5e71d"
+  },
+  "id": "rzMSthXu5HAf05Ls",
+  "tags": []
+}

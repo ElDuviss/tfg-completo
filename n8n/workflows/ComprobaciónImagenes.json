@@ -1,0 +1,96 @@
+{
+  "name": "ComprobaciónImagenes",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "/validar-foto",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "bf13e909-9c3b-4588-abf7-41ebd32f59d6",
+      "name": "Webhook",
+      "webhookId": "15a041dd-074f-48ca-ab8e-ca3faebad631"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://capilai-ia-java:8080/clasificar",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"imagen\": \"{{ $json.body.imagen}}\",\n  \"slug\": \"{{ $json.body.slug }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "4ba3d10b-be52-425c-9983-9b6753d02ec0",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"valida\": \"={{ $json.valida }}\",\n  \"mensaje\": \"={{ $json.mensaje }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        432,
+        0
+      ],
+      "id": "f65e09f1-317e-403d-9a55-0d9b51903443",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "d1444d5f-2023-48f7-96e1-8d3e64f27c49",
+  "meta": {
+    "instanceId": "5b9b5059b745b8dbf1a4815c89d18f9dd205617a336a6f87672ffd5cceb5e71d"
+  },
+  "id": "TljAoE1mzum0kqCl",
+  "tags": []
+}
