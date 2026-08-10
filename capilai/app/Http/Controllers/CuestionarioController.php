@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use App\Models\Cuestionario;
 use App\Models\Usuario;
@@ -18,66 +17,32 @@ class CuestionarioController extends Controller
             $userId = session('usuario_id');
 
             if (!$userId) {
-                return back()->with(
-                    'error',
-                    'No hay usuario autenticado.'
-                );
+                return back()->with('error', 'No hay usuario autenticado.');
             }
 
             $user = Usuario::find($userId);
 
             if (!$user) {
-                return back()->with(
-                    'error',
-                    'Usuario no encontrado en la base de datos.'
-                );
+                return back()->with('error', 'Usuario no encontrado en la base de datos.');
             }
 
             $data = $request->except('_token');
 
-            $json = json_encode(
-                $data,
-                JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
-            );
+            $jsonData = json_encode($data, JSON_UNESCAPED_UNICODE);
 
-            if ($json === false) {
+            if ($jsonData === false) {
 
                 Log::error('Error al generar JSON del cuestionario', [
-                    'user_id' => $userId
-                ]);
-
-                return back()->with(
-                    'error',
-                    'No se pudo procesar el cuestionario.'
-                );
-            }
-
-            $filename =
-                "cuestionarios/user_{$userId}_"
-                . time()
-                . ".json";
-
-            $guardado = Storage::disk('local')->put(
-                $filename,
-                $json
-            );
-
-            if (!$guardado) {
-
-                Log::error('Error guardando cuestionario en Storage', [
                     'user_id' => $userId,
-                    'archivo' => $filename
+                    'json_error' => json_last_error_msg(),
                 ]);
 
-                return back()->with(
-                    'error',
-                    'No se pudo guardar el cuestionario.'
-                );
+                return back()->with('error', 'No se pudo procesar el cuestionario.');
             }
 
             $cuestionario = Cuestionario::create([
-                'user_id' => $user->id,
-                'archivo_json' => $filename
+                'user_id'      => $user->id,
+                'archivo_json' => $jsonData,
             ]);
 
             if (!$cuestionario) {
@@ -86,10 +51,7 @@ class CuestionarioController extends Controller
                     'user_id' => $userId
                 ]);
 
-                return back()->with(
-                    'error',
-                    'No se pudo registrar el cuestionario.'
-                );
+                return back()->with('error', 'No se pudo registrar el cuestionario.');
             }
 
             $entries = Entry::query()
@@ -97,7 +59,6 @@ class CuestionarioController extends Controller
                 ->get();
 
             foreach ($entries as $entry) {
-
                 $entry->set('valida', false);
                 $entry->save();
             }
@@ -110,13 +71,10 @@ class CuestionarioController extends Controller
                 'message' => $e->getMessage(),
                 'line'    => $e->getLine(),
                 'file'    => $e->getFile(),
-                'user_id' => session('usuario_id')
+                'user_id' => session('usuario_id'),
             ]);
 
-            return back()->with(
-                'error',
-                'Ha ocurrido un error inesperado.'
-            );
+            return back()->with('error', 'Ha ocurrido un error inesperado.');
         }
     }
 }

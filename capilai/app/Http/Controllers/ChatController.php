@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use App\Models\Cuestionario;
 use App\Models\Datofoto;
@@ -14,6 +13,7 @@ class ChatController extends Controller
 {
     public function enviar(Request $request)
     {
+
         $request->validate([
             'mensaje' => 'required|string|max:5000'
         ]);
@@ -21,169 +21,187 @@ class ChatController extends Controller
         try {
 
             $pregunta = $request->mensaje;
+
             $userId = session('usuario_id');
 
             if (!$userId) {
+
                 return response()->json([
                     'error' => 'Sesión no válida.'
                 ], 401);
+
             }
 
             $cuestionario = Cuestionario::where('user_id', $userId)
-                ->orderBy('created_at', 'desc')
-                ->firstOrFail();
+                ->latest()
+                ->first();
 
-            if (!Storage::exists($cuestionario->archivo_json)) {
+            if (!$cuestionario) {
+
                 return response()->json([
-                    'error' => 'No existe el archivo del cuestionario.'
+                    'error' => 'No existe cuestionario.'
                 ], 404);
+
             }
 
-            $contenidoArchivo = Storage::get($cuestionario->archivo_json);
-            $datosCuestionario = json_decode($contenidoArchivo, true);
+            $datosCuestionario = $cuestionario->archivo_json;
 
-            if (json_last_error() !== JSON_ERROR_NONE) {
+            if (is_string($datosCuestionario)) {
+
+                $datosCuestionario = json_decode($datosCuestionario, true);
+
+            }
+
+            if (!is_array($datosCuestionario)) {
+
+                Log::error('Cuestionario inválido en ChatController', [
+                    'valor' => $datosCuestionario
+                ]);
+
                 return response()->json([
                     'error' => 'El cuestionario contiene un JSON inválido.'
                 ], 500);
+
             }
 
             $datofoto = Datofoto::where('user_id', $userId)
-                ->orderBy('created_at', 'desc')
-                ->firstOrFail();
+                ->latest()
+                ->first();
 
-            if (!Storage::exists($datofoto->archivo_json)) {
+            if (!$datofoto) {
+
                 return response()->json([
-                    'error' => 'No existe el archivo de datos fotográficos.'
+                    'error' => 'No existen datos fotográficos.'
                 ], 404);
+
             }
 
-            $contenidoFotos = Storage::get($datofoto->archivo_json);
-            $features = json_decode($contenidoFotos, true);
+            $features = $datofoto->archivo_json;
 
-            if (json_last_error() !== JSON_ERROR_NONE) {
+            if (is_string($features)) {
+
+                $features = json_decode($features, true);
+
+            }
+
+            if (!is_array($features)) {
+
+                Log::error('Features inválidos en ChatController', [
+                    'valor' => $features
+                ]);
+
                 return response()->json([
                     'error' => 'Los datos fotográficos contienen un JSON inválido.'
                 ], 500);
+
             }
 
-            $respuesta = Http::timeout(60)->post(
+            $respuesta = Http::timeout(120)->post(
+
                 'http://capilai-n8n:5678/webhook/preguntar',
+
                 [
-                    'pregunta'     => $pregunta,
+
+                    'pregunta' => $pregunta,
+
                     'cuestionario' => $datosCuestionario,
-                    'datos_fotos'  => $features
+
+                    'datos_fotos' => $features
+
                 ]
+
             );
 
             if (!$respuesta->successful()) {
 
-                Log::error('Error en webhook preguntar', [
+                Log::error('Error webhook preguntar n8n', [
+
                     'status' => $respuesta->status(),
+
                     'body' => $respuesta->body()
+
                 ]);
 
                 return response()->json([
-                    'error' => 'Error al comunicarse con el sistema de IA.'
-                ], 500);
+
+                    'error' => 'Error al comunicarse con la IA.'
+
+                ],500);
+
             }
 
             $textoRespuesta = $respuesta->body();
 
-            $timestamp = time();
+            if(empty($textoRespuesta)){
 
-            $archivoPregunta =
-                "analysis/Chat/Pregunta/user_{$userId}_chat_{$timestamp}.txt";
-
-            Storage::put($archivoPregunta, $pregunta);
-
-            $archivoRespuesta =
-                "analysis/Chat/Respuesta/user_{$userId}_chat_{$timestamp}.txt";
-
-            Storage::put($archivoRespuesta, $textoRespuesta);
-
-            ChatMessage::updateOrCreate(
-                ['user_id' => $userId],
-                [
-                    'question' => $archivoPregunta,
-                    'answer'   => $archivoRespuesta
-                ]
-            );
-
-            $chat = ChatMessage::where('user_id', $userId)->first();
-
-            if (!$chat) {
-
-                Log::warning('No se pudo recuperar el chat recién creado', [
-                    'user_id' => $userId
-                ]);
 
                 return response()->json([
-                    'error' => 'Error al guardar el historial del chat.'
-                ], 500);
+
+                    'error'=>'La IA devolvió una respuesta vacía.'
+
+                ],500);
+
             }
 
-            $archivoPreguntaActual = $chat->question;
-            $archivoRespuestaActual = $chat->answer;
+            ChatMessage::create([
 
-            $prefijoPregunta =
-                "analysis/Chat/Pregunta/user_{$userId}_";
+                'user_id' => $userId,
 
-            $prefijoRespuesta =
-                "analysis/Chat/Respuesta/user_{$userId}_";
+                'question' => $pregunta,
 
-            $preguntas = Storage::files('analysis/Chat/Pregunta');
+                'answer' => $textoRespuesta
 
-            foreach ($preguntas as $archivo) {
+            ]);
 
-                if (
-                    str_starts_with($archivo, $prefijoPregunta) &&
-                    $archivo !== $archivoPreguntaActual
-                ) {
-                    Storage::delete($archivo);
-                }
-            }
+            $respuestaLimpia = str_replace(
+                '*',
+                '',
+                $textoRespuesta
+            );
 
-            $respuestas = Storage::files('analysis/Chat/Respuesta');
-
-            foreach ($respuestas as $archivo) {
-
-                if (
-                    str_starts_with($archivo, $prefijoRespuesta) &&
-                    $archivo !== $archivoRespuestaActual
-                ) {
-                    Storage::delete($archivo);
-                }
-            }
-
-            $respuestaLimpia = str_replace('*', '', $textoRespuesta);
-            $respuestaFormateada = nl2br(e($respuestaLimpia));
+            $respuestaFormateada = nl2br(
+                e($respuestaLimpia)
+            );
 
             return response()->json([
+
                 'respuesta' => $respuestaFormateada
+
             ]);
 
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
 
-            Log::warning('Faltan datos para el chat', [
-                'user_id' => session('usuario_id')
+            Log::warning('Datos no encontrados en ChatController', [
+
+                'user_id'=>session('usuario_id')
+
             ]);
 
             return response()->json([
-                'error' => 'No existen datos suficientes para realizar la consulta.'
-            ], 404);
+
+                'error'=>'No existen datos suficientes.'
+
+            ],404);
 
         } catch (\Exception $e) {
 
-            Log::error('Error en ChatController@enviar', [
-                'message' => $e->getMessage(),
-                'line' => $e->getLine(),
-                'file' => $e->getFile()
+            Log::error('Error en ChatController@enviar',[
+
+                'message'=>$e->getMessage(),
+
+                'line'=>$e->getLine(),
+
+                'file'=>$e->getFile()
+
             ]);
 
             return response()->json([
-                'error' => 'Ha ocurrido un error interno.'
-            ], 500);
+
+                'error'=>'Ha ocurrido un error interno.'
+
+            ],500);
+
         }
+
     }
 }

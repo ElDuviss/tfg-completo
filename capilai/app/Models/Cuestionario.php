@@ -10,4 +10,8 @@ class Cuestionario extends Model
         'user_id',
         'archivo_json',
     ];
+
+    protected $casts = [
+        'archivo_json' => 'array',
+    ];
 }

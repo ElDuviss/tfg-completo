@@ -4,7 +4,6 @@ namespace App\Tags;
 
 use Statamic\Tags\Tags;
 use App\Models\ChatMessage;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 
 class Chat extends Tags
@@ -31,20 +30,16 @@ class Chat extends Tags
                 return 'No hay respuesta disponible.';
             }
 
-            if (!Storage::exists($chat->answer)) {
-                return 'Archivo de respuesta no encontrado.';
-            }
+            $contenido = $chat->answer;
 
-            $contenido = Storage::get($chat->answer);
+            if ($contenido === null || $contenido === '') {
 
-            if ($contenido === false || $contenido === null) {
-
-                Log::warning('No se pudo leer archivo de chat', [
+                Log::warning('Respuesta vacía en BD', [
                     'user_id' => $userId,
-                    'file' => $chat->answer
+                    'chat_id' => $chat->id
                 ]);
 
-                return 'Error al leer la respuesta.';
+                return 'Error: la respuesta está vacía.';
             }
 
             return nl2br(e($contenido));

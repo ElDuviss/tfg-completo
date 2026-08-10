@@ -4,9 +4,7 @@ namespace App\Tags;
 
 use Statamic\Tags\Tags;
 use App\Models\Analysis;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
 
 class HairPhotos extends Tags
 {
@@ -32,7 +30,7 @@ class HairPhotos extends Tags
 
             $analyses = Analysis::where('user_id', $userId)
                 ->where('type', $slug)
-                ->orderBy('created_at', 'desc')
+                ->latest()
                 ->get();
 
             if ($analyses->isEmpty()) {
@@ -53,41 +51,20 @@ class HairPhotos extends Tags
                         'analysis_id' => $analysis->id
                     ]);
 
-                    $html .= '<p class="text-red-500 text-center py-4">
-                        No se encontró datofoto asociado.
-                    </p>';
-
                     continue;
                 }
 
-                if (!$datofoto->archivo_json) {
+                $json = $datofoto->archivo_json;
 
-                    Log::warning('Datofoto sin archivo_json', [
-                        'datofoto_id' => $datofoto->id
-                    ]);
-
-                    continue;
+                if (is_string($json)) {
+                    $json = json_decode($json, true);
                 }
 
-                if (!Storage::exists($datofoto->archivo_json)) {
+                if (!is_array($json)) {
 
-                    Log::warning('Archivo JSON no encontrado', [
-                        'path' => $datofoto->archivo_json
-                    ]);
-
-                    $html .= '<p class="text-red-500 text-center py-4">
-                        Archivo no encontrado: ' . e($datofoto->archivo_json) . '
-                    </p>';
-
-                    continue;
-                }
-
-                $contenido = Storage::get($datofoto->archivo_json);
-
-                if ($contenido === false) {
-
-                    Log::warning('No se pudo leer archivo JSON', [
-                        'path' => $datofoto->archivo_json
+                    Log::error('archivo_json inválido', [
+                        'datofoto_id' => $datofoto->id,
+                        'valor' => $datofoto->archivo_json
                     ]);
 
                     continue;
@@ -95,12 +72,19 @@ class HairPhotos extends Tags
 
                 $fecha = optional($analysis->created_at)
                     ? $analysis->created_at->format('d/m/Y')
-                    : 'sin fecha';
+                    : 'Sin fecha';
 
                 $html .= '
-                    <div class="mb-8"
-                         data-fecha="' . e($fecha) . '">
-                        ' . Str::markdown($contenido) . '
+                    <div class="mb-8 border rounded-lg p-4 bg-white shadow">
+
+                        <h3 class="font-bold mb-3">
+                            Análisis del ' . e($fecha) . '
+                        </h3>
+
+                        <pre class="bg-gray-100 p-4 rounded overflow-auto text-sm">'
+                            . e(json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)) .
+                        '</pre>
+
                     </div>
                 ';
             }
@@ -116,7 +100,7 @@ class HairPhotos extends Tags
             ]);
 
             return '<p class="text-red-500 text-center py-4">
-                Error al cargar los análisis.
+                Error al cargar los datos.
             </p>';
         }
     }

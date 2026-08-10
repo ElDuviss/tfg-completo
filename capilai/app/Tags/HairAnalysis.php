@@ -4,7 +4,6 @@ namespace App\Tags;
 
 use Statamic\Tags\Tags;
 use App\Models\Analysis;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
@@ -45,47 +44,22 @@ class HairAnalysis extends Tags
 
             foreach ($analyses as $analysis) {
 
-                if (!$analysis->ai_response) {
+                if (empty($analysis->ai_response)) {
                     continue;
                 }
 
-                if (Storage::exists($analysis->ai_response)) {
+                $fecha = optional($analysis->created_at)
+                    ? $analysis->created_at->format('d/m/Y')
+                    : 'sin fecha';
 
-                    $contenido = Storage::get($analysis->ai_response);
+                $html .= '
+                    <div class="mb-8"
+                         data-fecha="' . e($fecha) . '">
 
-                    if ($contenido === false) {
+                        ' . Str::markdown($analysis->ai_response) . '
 
-                        Log::warning('No se pudo leer análisis AI', [
-                            'file' => $analysis->ai_response
-                        ]);
-
-                        continue;
-                    }
-
-                    $fecha = optional($analysis->created_at)
-                        ? $analysis->created_at->format('d/m/Y')
-                        : 'sin fecha';
-
-                    $html .= '
-                        <div class="mb-8"
-                            data-fecha="' . e($fecha) . '"
-                        >
-                            ' . Str::markdown($contenido) . '
-                        </div>
-                    ';
-
-                } else {
-
-                    Log::warning('Archivo de análisis no encontrado', [
-                        'file' => $analysis->ai_response
-                    ]);
-
-                    $html .= '
-                        <p class="text-red-500 text-center py-4">
-                            Archivo no encontrado: ' . e($analysis->ai_response) . '
-                        </p>
-                    ';
-                }
+                    </div>
+                ';
             }
 
             return $html;
@@ -93,9 +67,13 @@ class HairAnalysis extends Tags
         } catch (\Exception $e) {
 
             Log::error('Error en HairAnalysis tag', [
+
                 'message' => $e->getMessage(),
+
                 'line' => $e->getLine(),
+
                 'file' => $e->getFile()
+
             ]);
 
             return '<p class="text-red-500 text-center py-4">

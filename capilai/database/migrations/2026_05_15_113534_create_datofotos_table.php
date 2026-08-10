@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('datofotos', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id')->nullable();
-            $table->string('archivo_json');
+            $table->json('archivo_json');
             $table->unsignedBigInteger('foto_frontal_id')->nullable();
             $table->unsignedBigInteger('foto_superior_id')->nullable();
             $table->unsignedBigInteger('foto_lateral_izquierda_id')->nullable();

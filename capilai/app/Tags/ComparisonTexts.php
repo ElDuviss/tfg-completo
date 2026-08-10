@@ -4,7 +4,6 @@ namespace App\Tags;
 
 use Statamic\Tags\Tags;
 use App\Models\Comparison;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
@@ -37,44 +36,23 @@ class ComparisonTexts extends Tags
 
             foreach ($comparisons as $comparison) {
 
-                if (!isset($comparison->comparison_text)) {
+                if (empty($comparison->comparison_text)) {
+
+                    Log::warning('Comparación vacía', [
+                        'comparison_id' => $comparison->id
+                    ]);
+
                     continue;
                 }
 
-                if (Storage::exists($comparison->comparison_text)) {
-
-                    $contenido = Storage::get($comparison->comparison_text);
-
-                    if ($contenido === false) {
-
-                        Log::warning('No se pudo leer comparación', [
-                            'file' => $comparison->comparison_text
-                        ]);
-
-                        continue;
-                    }
-
-                    $html .= '
-                        <div class="mb-8"
-                            data-datofoto-nuevo="' . e($comparison->datofoto_nuevo_id) . '"
-                            data-datofoto-antiguo="' . e($comparison->datofoto_antiguo_id) . '"
-                        >
-                            ' . Str::markdown($contenido) . '
-                        </div>
-                    ';
-
-                } else {
-
-                    Log::warning('Archivo de comparación no encontrado', [
-                        'file' => $comparison->comparison_text
-                    ]);
-
-                    $html .= '
-                        <p class="text-red-500 text-center py-4">
-                            Archivo no encontrado: ' . e($comparison->comparison_text) . '
-                        </p>
-                    ';
-                }
+                $html .= '
+                    <div class="mb-8"
+                        data-datofoto-nuevo="' . e($comparison->datofoto_nuevo_id) . '"
+                        data-datofoto-antiguo="' . e($comparison->datofoto_antiguo_id) . '"
+                    >
+                        ' . Str::markdown($comparison->comparison_text) . '
+                    </div>
+                ';
             }
 
             return $html;

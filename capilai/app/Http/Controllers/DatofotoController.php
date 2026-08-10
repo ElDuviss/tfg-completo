@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Datofoto;
 use App\Models\Foto;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -58,46 +57,35 @@ class DatofotoController extends Controller
                         break;
                 }
 
-                if (!Storage::disk('local')->exists($foto->base64)) {
+                if (empty($foto->base64)) {
 
-                    Log::warning(
-                        'Archivo de fotografía inexistente',
-                        [
-                            'foto_id' => $foto->id,
-                            'archivo' => $foto->base64
-                        ]
-                    );
+                    Log::warning('Foto sin base64 en BD', [
+                        'foto_id' => $foto->id
+                    ]);
 
                     continue;
                 }
 
-                $contenido = Storage::disk('local')->get(
-                    $foto->base64
-                );
-
-                $base64 = base64_encode($contenido);
-
-                $DatosImagenes = Http::timeout(60)->post(
+                $respuesta = Http::timeout(60)->post(
                     'http://capilai-n8n:5678/webhook/enviar-fotos',
                     [
                         'slug_foto' => $foto->slug,
-                        'base64'    => $base64,
+                        'base64' => $foto->base64,
                     ]
                 );
 
-                if (!$DatosImagenes->successful()) {
+                if (!$respuesta->successful()) {
 
-                    Log::error(
-                        'Error en webhook enviar-fotos',
-                        [
-                            'status' => $DatosImagenes->status(),
-                            'body' => $DatosImagenes->body(),
-                            'foto_id' => $foto->id
-                        ]
-                    );
+                    Log::error('Error en webhook enviar-fotos', [
+                        'status' => $respuesta->status(),
+                        'body' => $respuesta->body(),
+                        'foto_id' => $foto->id
+                    ]);
 
                     continue;
                 }
+
+                $DatosImagenes = $respuesta;
             }
 
             if (!$DatosImagenes) {
@@ -109,108 +97,95 @@ class DatofotoController extends Controller
 
             $features = $DatosImagenes->json();
 
-            if (!$features) {
+            if (!is_array($features)) {
 
-                Log::error(
-                    'Respuesta JSON vacía desde n8n',
-                    [
-                        'user_id' => $userId
-                    ]
-                );
+                Log::error('Respuesta JSON inválida desde n8n', [
+                    'user_id' => $userId,
+                    'respuesta' => $DatosImagenes->body()
+                ]);
 
                 return response()->json([
                     'error' => 'No se recibieron características válidas.'
                 ], 500);
             }
 
-            $contenidoJson = json_encode(
-                $features,
-                JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
-            );
+            $jsonFeatures = json_encode($features, JSON_UNESCAPED_UNICODE);
 
-            if ($contenidoJson === false) {
+            if ($jsonFeatures === false) {
 
-                Log::error(
-                    'Error al generar JSON de características',
-                    [
-                        'user_id' => $userId
-                    ]
-                );
+                Log::error('Error convirtiendo características a JSON', [
+                    'user_id' => $userId,
+                    'error' => json_last_error_msg()
+                ]);
 
                 return response()->json([
-                    'error' => 'No se pudo generar el archivo JSON.'
+                    'error' => 'No se pudo convertir el análisis.'
                 ], 500);
             }
 
-            $nombreArchivo =
-                "datofotos/user_{$userId}_"
-                . time()
-                . ".json";
-
-            $guardado = Storage::disk('local')->put(
-                $nombreArchivo,
-                $contenidoJson
-            );
-
-            if (!$guardado) {
-
-                Log::error(
-                    'Error guardando archivo Datofoto',
-                    [
-                        'user_id' => $userId,
-                        'archivo' => $nombreArchivo
-                    ]
-                );
-
-                return response()->json([
-                    'error' => 'No se pudo guardar el archivo.'
-                ], 500);
-            }
 
             $registro = Datofoto::create([
+
                 'user_id' => $userId,
-                'archivo_json' => $nombreArchivo,
+
+                'archivo_json' => $jsonFeatures,
+
                 'foto_frontal_id' => $fotoFrontal,
+
                 'foto_superior_id' => $fotoSuperior,
+
                 'foto_lateral_izquierda_id' => $fotoIzquierda,
+
                 'foto_lateral_derecha_id' => $fotoDerecha,
+
             ]);
+
 
             if (!$registro) {
 
-                Log::error(
-                    'Error creando registro Datofoto',
-                    [
-                        'user_id' => $userId
-                    ]
-                );
+                Log::error('Error creando registro Datofoto', [
+                    'user_id' => $userId
+                ]);
 
                 return response()->json([
                     'error' => 'No se pudo registrar el análisis.'
                 ], 500);
             }
 
+
             return response()->json([
+
                 'success' => true,
-                'archivo' => $nombreArchivo,
-                'registro_id' => $registro->id
+
+                'registro_id' => $registro->id,
+
+                'features' => $features
+
             ]);
+
 
         } catch (\Exception $e) {
 
-            Log::error(
-                'Error en DatofotoController@guardar',
-                [
-                    'message' => $e->getMessage(),
-                    'line' => $e->getLine(),
-                    'file' => $e->getFile(),
-                    'user_id' => session('usuario_id')
-                ]
-            );
+
+            Log::error('Error en DatofotoController@guardar', [
+
+                'message' => $e->getMessage(),
+
+                'line' => $e->getLine(),
+
+                'file' => $e->getFile(),
+
+                'user_id' => session('usuario_id')
+
+            ]);
+
 
             return response()->json([
+
                 'error' => 'Ha ocurrido un error interno.'
+
             ], 500);
+
         }
     }
 }

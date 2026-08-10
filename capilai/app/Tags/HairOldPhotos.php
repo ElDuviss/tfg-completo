@@ -5,7 +5,6 @@ namespace App\Tags;
 use Statamic\Tags\Tags;
 use App\Models\Foto;
 use App\Models\Datofoto;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 
 class HairOldPhotos extends Tags
@@ -39,6 +38,7 @@ class HairOldPhotos extends Tags
             $idsMasNuevas = [];
 
             foreach ($slugs as $slug) {
+
                 $fotoNueva = $fotos[$slug]->first() ?? null;
 
                 if ($fotoNueva) {
@@ -69,38 +69,40 @@ class HairOldPhotos extends Tags
                         })
                         ->first();
 
+                    if (!$datofoto) {
+                        Log::warning('No existe Datofoto asociado', [
+                            'foto_id' => $foto->id,
+                            'slug' => $slug
+                        ]);
+                    }
+
                     $datofotoId = $datofoto->id ?? null;
 
-                    if (!$foto->base64) {
-                        Log::warning('Foto sin path base64', [
+                    if (empty($foto->base64)) {
+
+                        Log::warning('Foto sin base64 en BD', [
                             'foto_id' => $foto->id
                         ]);
+
                         continue;
                     }
 
-                    $ruta = ltrim($foto->base64, '/');
-                    $ruta = str_replace(['private/', 'app/'], '', $ruta);
+                    $base64 = trim($foto->base64);
 
-                    if (Storage::exists($ruta)) {
-                        $contenido = Storage::get($ruta);
-                    } elseif (Storage::disk('public')->exists($ruta)) {
-                        $contenido = Storage::disk('public')->get($ruta);
+                    // Corrige imágenes guardadas como:
+                    // =data:image/png;base64,...
+                    $base64 = ltrim($base64, '=');
+
+                    if (
+                        str_starts_with($base64, 'data:image/png;base64,') ||
+                        str_starts_with($base64, 'data:image/jpeg;base64,') ||
+                        str_starts_with($base64, 'data:image/jpg;base64,') ||
+                        str_starts_with($base64, 'data:image/webp;base64,')
+                    ) {
+                        $dataUrl = $base64;
                     } else {
-
-                        Log::warning('Archivo no encontrado', [
-                            'path' => $ruta,
-                            'foto_id' => $foto->id
-                        ]);
-
-                        continue;
+                        $dataUrl = 'data:image/png;base64,' . $base64;
                     }
-
-                    if ($contenido === false) {
-                        continue;
-                    }
-
-                    $base64 = base64_encode($contenido);
-                    $dataUrl = "data:image/png;base64," . $base64;
 
                     $fecha = optional($foto->created_at)->format('d/m/Y');
                     $hora = optional($foto->created_at)->format('H:i:s');
