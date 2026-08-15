@@ -74,18 +74,19 @@ class HairPhotos extends Tags
                     ? $analysis->created_at->format('d/m/Y')
                     : 'Sin fecha';
 
+                /*
+                 * IMPORTANTE:
+                 * Este elemento debe contener ÚNICAMENTE el JSON,
+                 * porque el JavaScript hace JSON.parse(innerText).
+                 */
                 $html .= '
-                    <div class="mb-8 border rounded-lg p-4 bg-white shadow">
-
-                        <h3 class="font-bold mb-3">
-                            Análisis del ' . e($fecha) . '
-                        </h3>
-
-                        <pre class="bg-gray-100 p-4 rounded overflow-auto text-sm">'
-                            . e(json_encode($json, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)) .
-                        '</pre>
-
-                    </div>
+                    <pre
+                        data-fecha="' . e($fecha) . '"
+                        class="hidden"
+                    >' . e(json_encode(
+                        $json,
+                        JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+                    )) . '</pre>
                 ';
             }
 
