@@ -96,60 +96,21 @@ class ChatController extends Controller
 
             }
 
-try {
+            $respuesta = Http::timeout(120)->post(
 
-    error_log("========== INICIO N8N ==========");
+                'http://capilai-n8n:5678/webhook/preguntar',
 
-    error_log("URL: https://n8n-xigf.onrender.com/webhook/preguntar");
+                [
 
-    error_log("PREGUNTA: " . json_encode($pregunta));
+                    'pregunta' => $pregunta,
 
-    error_log("CUESTIONARIO: " . json_encode($datosCuestionario));
+                    'cuestionario' => $datosCuestionario,
 
-    error_log("FOTOS: " . json_encode($features));
+                    'datos_fotos' => $features
 
-    $respuesta = Http::timeout(120)
-        ->withHeaders([
-            'Accept' => 'application/json',
-            'Content-Type' => 'application/json',
-        ])
-        ->post(
-            'https://n8n-xigf.onrender.com/webhook/preguntar',
-            [
-                'pregunta' => $pregunta,
-                'cuestionario' => $datosCuestionario,
-                'datos_fotos' => $features
-            ]
-        );
+                ]
 
-    error_log("========== RESPUESTA N8N ==========");
-
-    error_log("STATUS N8N: " . $respuesta->status());
-
-    error_log("SUCCESSFUL: " . ($respuesta->successful() ? 'SI' : 'NO'));
-
-    error_log("BODY N8N: " . $respuesta->body());
-
-    error_log("HEADERS N8N: " . json_encode($respuesta->headers()));
-
-    error_log("========== FIN N8N ==========");
-
-} catch (\Throwable $e) {
-
-    error_log("========== ERROR N8N ==========");
-
-    error_log("MENSAJE: " . $e->getMessage());
-
-    error_log("ARCHIVO: " . $e->getFile());
-
-    error_log("LINEA: " . $e->getLine());
-
-    error_log("TRACE: " . $e->getTraceAsString());
-
-    error_log("========== FIN ERROR ==========");
-
-    throw $e;
-}
+            );
 
             if (!$respuesta->successful()) {
 

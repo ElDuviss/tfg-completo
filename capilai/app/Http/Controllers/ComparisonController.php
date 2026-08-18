@@ -182,7 +182,7 @@ class ComparisonController extends Controller
                 try {
 
                     $response = Http::timeout(120)->post(
-                        'https://n8n-xigf.onrender.com/webhook/comparacion',
+                        'http://capilai-n8n:5678/webhook/comparacion',
                         [
                             'datofoto_nuevo' => $jsonNuevo,
                             'datofoto_antiguo' => $jsonAntiguo,

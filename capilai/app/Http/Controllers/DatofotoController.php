@@ -67,7 +67,7 @@ class DatofotoController extends Controller
                 }
 
                 $respuesta = Http::timeout(60)->post(
-                    'https://n8n-xigf.onrender.com/webhook/enviar-fotos',
+                    'http://capilai-n8n:5678/webhook/enviar-fotos',
                     [
                         'slug_foto' => $foto->slug,
                         'base64' => $foto->base64,
