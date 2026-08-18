@@ -96,21 +96,84 @@ class ChatController extends Controller
 
             }
 
-            $respuesta = Http::timeout(120)->post(
+            try {
+    Log::info('========== INICIO PETICIÓN N8N ==========');
 
-                'https://n8n-xigf.onrender.com/webhook/preguntar',
+    Log::info('URL n8n', [
+        'url' => 'https://n8n-xigf.onrender.com/webhook/preguntar'
+    ]);
 
-                [
+    Log::info('Pregunta enviada', [
+        'pregunta' => $pregunta
+    ]);
 
-                    'pregunta' => $pregunta,
+    Log::info('Datos cuestionario', [
+        'cuestionario' => $datosCuestionario
+    ]);
 
-                    'cuestionario' => $datosCuestionario,
+    Log::info('Datos fotos', [
+        'datos_fotos' => $features
+    ]);
 
-                    'datos_fotos' => $features
+    $respuesta = Http::timeout(120)
+        ->withHeaders([
+            'Accept' => 'application/json',
+            'Content-Type' => 'application/json',
+        ])
+        ->post(
+            'https://n8n-xigf.onrender.com/webhook/preguntar',
+            [
+                'pregunta' => $pregunta,
+                'cuestionario' => $datosCuestionario,
+                'datos_fotos' => $features
+            ]
+        );
 
-                ]
+    Log::info('========== RESPUESTA DE N8N ==========');
 
-            );
+    Log::info('Status HTTP n8n', [
+        'status' => $respuesta->status()
+    ]);
+
+    Log::info('Respuesta completa n8n', [
+        'body' => $respuesta->body()
+    ]);
+
+    Log::info('Headers n8n', [
+        'headers' => $respuesta->headers()
+    ]);
+
+    if (!$respuesta->successful()) {
+        Log::error('N8N HA DEVUELTO UN ERROR', [
+            'status' => $respuesta->status(),
+            'body' => $respuesta->body()
+        ]);
+    }
+
+    Log::info('========== FIN PETICIÓN N8N ==========');
+
+    } catch (\Throwable $e) {
+
+        Log::error('========== ERROR COMUNICANDO CON N8N ==========');
+
+        Log::error('Mensaje', [
+            'message' => $e->getMessage()
+        ]);
+
+        Log::error('Archivo', [
+            'file' => $e->getFile()
+        ]);
+
+        Log::error('Línea', [
+            'line' => $e->getLine()
+        ]);
+
+        Log::error('Trace', [
+            'trace' => $e->getTraceAsString()
+        ]);
+
+        throw $e;
+    }
 
             if (!$respuesta->successful()) {
 
