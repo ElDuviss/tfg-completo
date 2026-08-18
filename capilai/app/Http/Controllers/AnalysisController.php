@@ -107,21 +107,21 @@ class AnalysisController extends Controller
             }
 
             Http::timeout(60)->post(
-                'https://0.0.0.0:10000/webhook/enviar-datos',
+                'https://n8n-xigf.onrender.com/webhook/enviar-datos',
                 [
                     'slug' => $slug
                 ]
             );
 
             Http::timeout(60)->post(
-                'https://0.0.0.0:10000/webhook/datos-imagenes',
+                'https://n8n-xigf.onrender.com/webhook/datos-imagenes',
                 [
                     'features_globales' => $features
                 ]
             );
 
             $respuesta = Http::timeout(120)->post(
-                'https://0.0.0.0:10000/webhook/enviar-cuestionario',
+                'https://n8n-xigf.onrender.com/webhook/enviar-cuestionario',
                 $datosCuestionario
             );
 
