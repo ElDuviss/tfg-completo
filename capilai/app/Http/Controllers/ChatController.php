@@ -98,7 +98,7 @@ class ChatController extends Controller
 
             $respuesta = Http::timeout(120)->post(
 
-                'http://capilai-n8n:5678/webhook/preguntar',
+                'https://capilai-n8n.onrender.com/webhook/preguntar',
 
                 [
 

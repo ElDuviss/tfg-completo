@@ -47,7 +47,7 @@ class FotoController extends Controller
             $slugActual = $request->slug_actual;
 
             $response = Http::post(
-                'http://capilai-n8n:5678/webhook/validar-foto',
+                'https://capilai-n8n.onrender.com/webhook/validar-foto',
                 [
                     'imagen' => 'data:image/png;base64,' . $imageBase64,
                     'slug'   => $slugActual,
@@ -93,7 +93,7 @@ class FotoController extends Controller
                 $foto2Base64 = $imageBase64;
 
                 $respAlinear = Http::post(
-                    'http://capilai-n8n:5678/webhook/alinear-foto',
+                    'https://capilai-n8n.onrender.com/webhook/alinear-foto',
                     [
                         'foto_1' => 'data:image/png;base64,' . $foto1Base64,
                         'foto_2' => 'data:image/png;base64,' . $foto2Base64
