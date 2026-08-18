@@ -96,24 +96,17 @@ class ChatController extends Controller
 
             }
 
-            try {
-    Log::info('========== INICIO PETICIÓN N8N ==========');
+try {
 
-    Log::info('URL n8n', [
-        'url' => 'https://n8n-xigf.onrender.com/webhook/preguntar'
-    ]);
+    error_log("========== INICIO N8N ==========");
 
-    Log::info('Pregunta enviada', [
-        'pregunta' => $pregunta
-    ]);
+    error_log("URL: https://n8n-xigf.onrender.com/webhook/preguntar");
 
-    Log::info('Datos cuestionario', [
-        'cuestionario' => $datosCuestionario
-    ]);
+    error_log("PREGUNTA: " . json_encode($pregunta));
 
-    Log::info('Datos fotos', [
-        'datos_fotos' => $features
-    ]);
+    error_log("CUESTIONARIO: " . json_encode($datosCuestionario));
+
+    error_log("FOTOS: " . json_encode($features));
 
     $respuesta = Http::timeout(120)
         ->withHeaders([
@@ -129,51 +122,34 @@ class ChatController extends Controller
             ]
         );
 
-    Log::info('========== RESPUESTA DE N8N ==========');
+    error_log("========== RESPUESTA N8N ==========");
 
-    Log::info('Status HTTP n8n', [
-        'status' => $respuesta->status()
-    ]);
+    error_log("STATUS N8N: " . $respuesta->status());
 
-    Log::info('Respuesta completa n8n', [
-        'body' => $respuesta->body()
-    ]);
+    error_log("SUCCESSFUL: " . ($respuesta->successful() ? 'SI' : 'NO'));
 
-    Log::info('Headers n8n', [
-        'headers' => $respuesta->headers()
-    ]);
+    error_log("BODY N8N: " . $respuesta->body());
 
-    if (!$respuesta->successful()) {
-        Log::error('N8N HA DEVUELTO UN ERROR', [
-            'status' => $respuesta->status(),
-            'body' => $respuesta->body()
-        ]);
-    }
+    error_log("HEADERS N8N: " . json_encode($respuesta->headers()));
 
-    Log::info('========== FIN PETICIÓN N8N ==========');
+    error_log("========== FIN N8N ==========");
 
-    } catch (\Throwable $e) {
+} catch (\Throwable $e) {
 
-        Log::error('========== ERROR COMUNICANDO CON N8N ==========');
+    error_log("========== ERROR N8N ==========");
 
-        Log::error('Mensaje', [
-            'message' => $e->getMessage()
-        ]);
+    error_log("MENSAJE: " . $e->getMessage());
 
-        Log::error('Archivo', [
-            'file' => $e->getFile()
-        ]);
+    error_log("ARCHIVO: " . $e->getFile());
 
-        Log::error('Línea', [
-            'line' => $e->getLine()
-        ]);
+    error_log("LINEA: " . $e->getLine());
 
-        Log::error('Trace', [
-            'trace' => $e->getTraceAsString()
-        ]);
+    error_log("TRACE: " . $e->getTraceAsString());
 
-        throw $e;
-    }
+    error_log("========== FIN ERROR ==========");
+
+    throw $e;
+}
 
             if (!$respuesta->successful()) {
 
